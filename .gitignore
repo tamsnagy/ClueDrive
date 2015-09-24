@@ -6,3 +6,6 @@ target/
 # IDEA related ignores
 .idea/
 *.iml
+
+# Configuration files
+*.properties
