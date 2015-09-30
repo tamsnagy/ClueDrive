@@ -8,8 +8,8 @@ import java.util.List;
  * Created by Tamas on 2015-09-24.
  */
 public interface ClueDrive {
-    List<String> list(String path) throws ClueException;
+    List<CResource> list(CPath path) throws ClueException;
     void setClient(String accessToken);
-    void createFolder(String path);
+    void createFolder(CPath path);
 
 }

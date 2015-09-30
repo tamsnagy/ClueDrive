@@ -1,6 +1,8 @@
-package com.cluedrive.commons;
+package com.cluedrive.drives;
 
+import com.cluedrive.commons.*;
 import com.cluedrive.exception.ClueException;
+import com.cluedrive.exception.NotExistingPathException;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;
 import com.dropbox.core.DbxException;
@@ -23,10 +25,21 @@ public class DropBoxDrive implements ClueDrive {
     }
 
     @Override
-    public List<String> list(String path) throws ClueException {
+    public List<CResource> list(CPath path) throws ClueException {
         try {
-            List<String> entries = new ArrayList<>();
-            client.getMetadataWithChildren(path).children.forEach((dbxEntry -> entries.add(dbxEntry.path)));
+            List<CResource> entries = new ArrayList<>();
+            DbxEntry.WithChildren dbxEntries = client.getMetadataWithChildren(path.toString());
+            if(dbxEntries == null) {
+                throw new NotExistingPathException(path);
+            }
+            for(DbxEntry dbxEntry: dbxEntries.children) {
+                if(dbxEntry.isFolder()) {
+                    entries.add(new CDirectory(CPath.create(dbxEntry.path)));
+                } else if (dbxEntry.isFile()) {
+                    DbxEntry.File file = dbxEntry.asFile();
+                    entries.add(new CFile(CPath.create(file.path), file.numBytes, file.lastModified));
+                }
+            }
             return entries;
         } catch (DbxException e) {
             throw new ClueException(e);
@@ -39,9 +52,9 @@ public class DropBoxDrive implements ClueDrive {
     }
 
     @Override
-    public void createFolder(String path) {
+    public void createFolder(CPath path) {
         try {
-            DbxEntry.Folder folder =this.client.createFolder(path);
+            DbxEntry.Folder folder =this.client.createFolder(path.toString());
         } catch (DbxException e) {
             e.printStackTrace();
         }

@@ -7,4 +7,8 @@ public class ClueException extends Exception {
     public ClueException(Exception e){
         super(e);
     }
+
+    public ClueException(String e) {
+        super(e);
+    }
 }

@@ -1,9 +1,11 @@
 package com.cluedrive.dropboxdrive;
 
+import com.cluedrive.commons.CPath;
 import com.cluedrive.commons.ClueDrive;
-import com.cluedrive.commons.DropBoxDrive;
+import com.cluedrive.drives.DropBoxDrive;
 
 import com.cluedrive.exception.ClueException;
+import com.cluedrive.exception.IllegalPathException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,15 +31,13 @@ public class DropBoxDriveTest {
 
     @Test
     public void testList() throws ClueException {
-        System.out.println(drive.list("/"));
-        System.out.println(drive.list("/alma"));
+        System.out.println(drive.list(CPath.create("/")));
+
     }
 
     @Test
-    public void testCreateFolder() {
-        drive.createFolder("/alma/korte");
-        drive.createFolder("/korte/szilva");
-
+    public void testCreateFolder() throws IllegalPathException {
+        drive.createFolder(CPath.create("/korte/szilva/...."));
     }
 
 }
