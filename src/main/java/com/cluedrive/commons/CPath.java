@@ -17,9 +17,13 @@ public class CPath {
         return new CPath(absolutePath);
     }
 
-    public static CPath create(CPath path, String leaf) throws IllegalPathException {
-        String result = path.absolutePath + "/" + leaf;
-        validatePath(result);
+    public static CPath create(CPath path, String leaf) {
+        String result;
+        if(path.absolutePath.endsWith("/")) {
+            result = path.absolutePath + leaf;
+        } else {
+            result = path.absolutePath + "/" + leaf;
+        }
         return new CPath(result);
     }
 

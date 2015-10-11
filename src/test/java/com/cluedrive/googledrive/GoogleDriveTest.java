@@ -89,7 +89,6 @@ public class GoogleDriveTest {
         return credential;
     }
 
-
     @Before
     public void setup() throws IOException {
         Credential credential = authorize();

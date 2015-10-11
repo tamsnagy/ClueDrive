@@ -32,7 +32,6 @@ public class DropBoxDriveTest {
     @Test
     public void testList() throws ClueException {
         System.out.println(drive.list(CPath.create("/")));
-
     }
 
     @Test
