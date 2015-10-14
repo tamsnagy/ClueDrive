@@ -101,6 +101,6 @@ public class GoogleDriveTest {
 
     @Test
     public void testList() throws ClueException {
-        drive.list(CPath.create("/"));
+        drive.list(CPath.create("/")).forEach(System.out::println);
     }
 }

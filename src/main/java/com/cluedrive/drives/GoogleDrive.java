@@ -1,14 +1,13 @@
 package com.cluedrive.drives;
 
-import com.cluedrive.commons.CPath;
-import com.cluedrive.commons.CResource;
-import com.cluedrive.commons.ClueDrive;
+import com.cluedrive.commons.*;
 import com.cluedrive.exception.ClueException;
 import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
+import com.google.api.services.drive.model.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -23,24 +22,39 @@ public class GoogleDrive implements ClueDrive {
 
     @Override
     public List<CResource> list(CPath path) throws ClueException {
-        FileList result = null;
+        ChildList result = null;
         try {
-            result = client.files().list()
-                    .setMaxResults(10)
-                    .execute();
+            String rootId = client.about().get().execute().getRootFolderId();
+            result = client.children().list(rootId).execute();
         } catch (IOException e) {
             throw new ClueException(e);
         }
-        List<File> files = result.getItems();
-        if (files == null || files.size() == 0) {
+        List<ChildReference> children = result.getItems();
+        List<CResource> responseList = new ArrayList<>();
+        if (children == null || children.size() == 0) {
             System.out.println("No files found.");
         } else {
             System.out.println("Files:");
-            for (File file : files) {
-                System.out.printf("%s (%s)\n", file.getTitle(), file.getId());
+            for (ChildReference ch : children) {
+                try {
+                    File file = client.files().get(ch.getId()).execute();
+                    CPath fileName = CPath.create(path, file.getTitle());
+                    if("application/vnd.google-apps.folder".equals(file.getMimeType())) {
+                        responseList.add(new CDirectory(fileName));
+                    } else {
+                        Date date = (file.getModifiedDate() == null) ? null : new Date(file.getModifiedDate().getValue());
+                        long size = 0;
+                        if(file.keySet().contains("fileSize")) {
+                             size = file.getFileSize();
+                        }
+                        responseList.add(new CFile(fileName, size, date));
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
-        return null;
+        return responseList;
     }
 
     @Override
