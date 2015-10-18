@@ -14,6 +14,7 @@ import java.util.*;
  */
 public class GoogleDrive implements ClueDrive {
     private Drive client;
+    private static final String FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
 
     public GoogleDrive(Drive client) {
         this.client = client;
@@ -41,15 +42,15 @@ public class GoogleDrive implements ClueDrive {
             // convert Google's response to common CResources
             for (File file : children.values()) {
                 CPath fileName = CPath.create(path, file.getTitle());
-                if("application/vnd.google-apps.folder".equals(file.getMimeType())) {
-                    responseList.add(new CDirectory(fileName));
+                if(FOLDER_MIME_TYPE.equals(file.getMimeType())) {
+                    responseList.add(new CFolder(fileName, file.getId()));
                 } else {
                     Date date = (file.getModifiedDate() == null) ? null : new Date(file.getModifiedDate().getValue());
                     long size = 0;
                     if(file.keySet().contains("fileSize")) {
                         size = file.getFileSize();
                     }
-                    responseList.add(new CFile(fileName, size, date));
+                    responseList.add(new CFile(fileName, file.getId(), size, date));
                 }
             }
 
@@ -65,8 +66,29 @@ public class GoogleDrive implements ClueDrive {
     }
 
     @Override
-    public void createFolder(CPath path) {
+    public CFolder createFolder(CFolder parentFolder, String folderName) throws ClueException {
+        File body = new File();
+        body.setTitle(folderName);
+        body.setMimeType(FOLDER_MIME_TYPE);
+        body.setParents(Arrays.asList(new ParentReference().setId(parentFolder.getId())));
 
+        try {
+            File folder = client.files().insert(body).execute();
+            return new CFolder(CPath.create(parentFolder.getRemotePath(), folder.getTitle()), folder.getId());
+        } catch (IOException e) {
+            throw new ClueException(e);
+        }
+    }
+
+    @Override
+    public CFolder getRootFolder() throws ClueException {
+        try {
+            String rootId = client.about().get().execute().getRootFolderId();
+            File file = client.files().get(rootId).execute();
+            return new CFolder(CPath.create("/"), file.getId());
+        } catch (IOException e) {
+            throw new ClueException(e);
+        }
     }
 
     private Map<String, File> listChildren(String id) throws ClueException {

@@ -1,5 +1,6 @@
 package com.cluedrive.dropboxdrive;
 
+import com.cluedrive.commons.CFolder;
 import com.cluedrive.commons.CPath;
 import com.cluedrive.commons.ClueDrive;
 import com.cluedrive.drives.DropBoxDrive;
@@ -12,6 +13,8 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by Tamas on 2015-09-24.
@@ -35,8 +38,9 @@ public class DropBoxDriveTest {
     }
 
     @Test
-    public void testCreateFolder() throws IllegalPathException {
-        drive.createFolder(CPath.create("/korte/szilva/...."));
+    public void testCreateFolder() throws ClueException {
+        CFolder folder = drive.createFolder(new CFolder(CPath.create("/korte/szilva")), "alma");
+        assertEquals("/korte/szilva/alma", folder.getRemotePath().toString());
     }
 
 }

@@ -1,5 +1,6 @@
 package com.cluedrive.googledrive;
 
+import com.cluedrive.commons.CFolder;
 import com.cluedrive.commons.CPath;
 import com.cluedrive.commons.ClueDrive;
 import com.cluedrive.drives.GoogleDrive;
@@ -24,6 +25,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by Tamas on 2015-10-01.
@@ -102,5 +106,16 @@ public class GoogleDriveTest {
     @Test
     public void testList() throws ClueException {
         drive.list(CPath.create("/moka")).forEach(System.out::println);
+    }
+
+    @Test
+    public void testCreateFolder() throws ClueException {
+        CFolder folder = drive.createFolder(drive.getRootFolder(), "alma");
+        assertEquals("/aaa", folder.getRemotePath().toString());
+    }
+
+    @Test
+    public void testGetRoot() throws ClueException {
+        assertNotNull(drive.getRootFolder().getId());
     }
 }

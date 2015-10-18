@@ -10,6 +10,7 @@ import java.util.List;
 public interface ClueDrive {
     List<CResource> list(CPath path) throws ClueException;
     void setClient(String accessToken);
-    void createFolder(CPath path);
+    CFolder createFolder(CFolder parentFolder, String folderName) throws ClueException;
+    CFolder getRootFolder() throws ClueException;
 
 }

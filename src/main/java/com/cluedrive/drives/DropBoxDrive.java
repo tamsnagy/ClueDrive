@@ -2,6 +2,7 @@ package com.cluedrive.drives;
 
 import com.cluedrive.commons.*;
 import com.cluedrive.exception.ClueException;
+import com.cluedrive.exception.IllegalPathException;
 import com.cluedrive.exception.NotExistingPathException;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;
@@ -34,7 +35,7 @@ public class DropBoxDrive implements ClueDrive {
             }
             for(DbxEntry dbxEntry: dbxEntries.children) {
                 if(dbxEntry.isFolder()) {
-                    entries.add(new CDirectory(CPath.create(dbxEntry.path)));
+                    entries.add(new CFolder(CPath.create(dbxEntry.path)));
                 } else if (dbxEntry.isFile()) {
                     DbxEntry.File file = dbxEntry.asFile();
                     entries.add(new CFile(CPath.create(file.path), file.numBytes, file.lastModified));
@@ -52,11 +53,24 @@ public class DropBoxDrive implements ClueDrive {
     }
 
     @Override
-    public void createFolder(CPath path) {
+    public CFolder createFolder(CFolder parentFolder, String folderName) throws ClueException {
         try {
-            DbxEntry.Folder folder =this.client.createFolder(path.toString());
+            CPath path = CPath.create(parentFolder.getRemotePath(), folderName);
+            DbxEntry.Folder folder = this.client.createFolder(path.toString());
+            return new CFolder(path);
         } catch (DbxException e) {
-            e.printStackTrace();
+            throw new ClueException(e);
+        }
+    }
+
+    @Override
+    public CFolder getRootFolder() throws ClueException {
+        try {
+            String rootFolder = "/";
+            DbxEntry root = client.getMetadata(rootFolder);
+            return new CFolder(CPath.create(root.path));
+        } catch (DbxException e) {
+            throw new ClueException(e);
         }
     }
 

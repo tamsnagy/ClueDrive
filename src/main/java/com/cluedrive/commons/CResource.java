@@ -8,8 +8,13 @@ public abstract class CResource {
     protected CPath remotePath;
     protected CPath localPath;
 
-    public CResource(CPath remotePath) {
+    public CResource(CPath remotePath){
         this.remotePath = remotePath;
+    }
+
+    public CResource(CPath remotePath, String id) {
+        this.remotePath = remotePath;
+        this.id = id;
     }
 
     public CPath getRemotePath() {

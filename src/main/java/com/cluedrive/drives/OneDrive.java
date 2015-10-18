@@ -2,10 +2,8 @@ package com.cluedrive.drives;
 
 import com.cluedrive.commons.*;
 import com.cluedrive.exception.ClueException;
-import com.cluedrive.exception.IllegalPathException;
 import com.cluedrive.onedrive.response.ChildrenList;
 import com.cluedrive.onedrive.response.DriveMetadata;
-import com.cluedrive.onedrive.response.Item;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -34,7 +32,7 @@ public class OneDrive implements ClueDrive {
             if(item.getFile() != null) {
                 return new CFile(resourcePath, item.getSize(), item.getLastModifiedDateTime());
             }else {
-                return new CDirectory(resourcePath);
+                return new CFolder(resourcePath);
             }
         }).collect(Collectors.toList());
     }
@@ -45,8 +43,13 @@ public class OneDrive implements ClueDrive {
     }
 
     @Override
-    public void createFolder(CPath path) {
+    public CFolder createFolder(CFolder parentFolder, String folderName) {
+        return null;
+    }
 
+    @Override
+    public CFolder getRootFolder() throws ClueException {
+        return null;
     }
 
     public void setDefaultDrive() {

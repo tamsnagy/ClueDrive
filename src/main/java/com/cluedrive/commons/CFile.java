@@ -12,6 +12,13 @@ public class CFile extends CResource{
     public CFile(CPath remotePath, long fileSize, Date lastModified) {
         super(remotePath);
         this.fileSize = fileSize;
+        this.lastModified = lastModified;
+    }
+
+    public CFile(CPath remotePath, String id, long fileSize, Date lastModified) {
+        super(remotePath, id);
+        this.fileSize = fileSize;
+        this.lastModified = lastModified;
     }
 
     @Override
