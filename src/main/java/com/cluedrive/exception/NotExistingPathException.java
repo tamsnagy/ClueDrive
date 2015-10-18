@@ -7,6 +7,6 @@ import com.cluedrive.commons.CPath;
  */
 public class NotExistingPathException extends ClueException{
     public NotExistingPathException(CPath path) {
-        super("Required path does not exists on cloud provider: " + path.toString());
+        super("Required remotePath does not exists on cloud provider: " + path.toString());
     }
 }

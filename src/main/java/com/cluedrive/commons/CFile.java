@@ -9,8 +9,8 @@ public class CFile extends CResource{
     private long fileSize;  // bytes
     private Date lastModified;
 
-    public CFile(CPath path, long fileSize, Date lastModified) {
-        super(path);
+    public CFile(CPath remotePath, long fileSize, Date lastModified) {
+        super(remotePath);
         this.fileSize = fileSize;
     }
 
@@ -19,7 +19,7 @@ public class CFile extends CResource{
         return "CFile{" +
                 "fileSize=" + fileSize +
                 ", lastModified=" + lastModified +
-                ", path=" + super.toString() + "} ";
+                ", remotePath=" + super.toString() + "} ";
     }
 
     public long getFileSize() {

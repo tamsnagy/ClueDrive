@@ -5,12 +5,12 @@ package com.cluedrive.commons;
  */
 public class CDirectory extends CResource {
 
-    public CDirectory(CPath path) {
-        super(path);
+    public CDirectory(CPath remotePath) {
+        super(remotePath);
     }
 
     @Override
     public String toString() {
-        return "CDirectory{path=" + super.toString() + "} ";
+        return "CDirectory{remotePath=" + super.toString() + "} ";
     }
 }
