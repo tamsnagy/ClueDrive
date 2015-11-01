@@ -41,6 +41,10 @@ public abstract class CResource {
         this.id = id;
     }
 
+    public String getName() {
+        return remotePath.getLeaf();
+    }
+
     @Override
     public String toString() {
         return remotePath.toString();

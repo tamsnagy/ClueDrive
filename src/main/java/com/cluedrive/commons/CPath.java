@@ -27,6 +27,12 @@ public class CPath {
         return new CPath(result);
     }
 
+    public String getLeaf() {
+        if(absolutePath.length() <= 1)
+            return "/";
+        return absolutePath.substring(absolutePath.lastIndexOf('/') + 1);
+    }
+
     @Override
     public String toString() {
         return absolutePath;

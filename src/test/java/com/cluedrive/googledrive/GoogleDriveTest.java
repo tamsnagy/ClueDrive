@@ -2,6 +2,7 @@ package com.cluedrive.googledrive;
 
 import com.cluedrive.commons.CFolder;
 import com.cluedrive.commons.CPath;
+import com.cluedrive.commons.CResource;
 import com.cluedrive.commons.ClueDrive;
 import com.cluedrive.drives.GoogleDrive;
 import com.cluedrive.exception.ClueException;
@@ -55,7 +56,7 @@ public class GoogleDriveTest {
 
     /** Global instance of the scopes required by this quickstart. */
     private static final List<String> SCOPES =
-            Arrays.asList(DriveScopes.DRIVE_METADATA_READONLY);
+            Arrays.asList(DriveScopes.DRIVE);
 
     static {
         try {
@@ -110,8 +111,14 @@ public class GoogleDriveTest {
 
     @Test
     public void testCreateFolder() throws ClueException {
-        CFolder folder = drive.createFolder(drive.getRootFolder(), "alma");
-        assertEquals("/aaa", folder.getRemotePath().toString());
+        CFolder parentFolder = null;
+        for(CResource cResource: drive.list(drive.getRootFolder().getRemotePath())) {
+            if(cResource.getName().equals("ClueDrive")) {
+                parentFolder = (CFolder)cResource;
+            }
+        }
+        CFolder folder = drive.createFolder(parentFolder, "alma");
+        assertEquals("/alma", folder.getRemotePath().toString());
     }
 
     @Test
