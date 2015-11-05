@@ -118,7 +118,7 @@ public class GoogleDriveTest {
             }
         }
         CFolder folder = drive.createFolder(parentFolder, "alma");
-        assertEquals("/alma", folder.getRemotePath().toString());
+        assertEquals("/ClueDrive/alma", folder.getRemotePath().toString());
     }
 
     @Test
