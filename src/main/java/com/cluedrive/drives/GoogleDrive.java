@@ -3,11 +3,13 @@ package com.cluedrive.drives;
 import com.cluedrive.commons.*;
 import com.cluedrive.exception.ClueException;
 import com.cluedrive.exception.NotExistingPathException;
+import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -95,7 +97,26 @@ public class GoogleDrive implements ClueDrive {
 
     @Override
     public CFile uploadFile(CFolder remotePath, Path localPath) throws ClueException, FileNotFoundException {
-        return null;
+        File body = new File();
+        String fileName = localPath.getFileName().toString();
+        body.setTitle(fileName);
+        body.setParents(Arrays.asList(new ParentReference().setId(remotePath.getId())));
+        try {
+            String mimeType = Files.probeContentType(localPath);
+            body.setMimeType(mimeType);
+            FileContent mediaContent = new FileContent(mimeType, localPath.toFile());
+
+            File uploadedFile = client.files().insert(body, mediaContent).execute();
+
+            Date date = (uploadedFile.getModifiedDate() == null) ? null : new Date(uploadedFile.getModifiedDate().getValue());
+            long size = 0;
+            if(uploadedFile.keySet().contains("fileSize")) {
+                size = uploadedFile.getFileSize();
+            }
+            return new CFile(CPath.create(remotePath.getRemotePath(), fileName), uploadedFile.getId(), size, date);
+        } catch (IOException e) {
+            throw new ClueException(e);
+        }
     }
 
     @Override
