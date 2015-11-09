@@ -54,7 +54,8 @@ public class DropBoxDrive implements ClueDrive {
     public CFolder createFolder(CFolder parentFolder, String folderName) throws ClueException {
         try {
             CPath path = CPath.create(parentFolder.getRemotePath(), folderName);
-            DbxEntry.Folder folder = this.client.createFolder(path.toString());
+            this.client.createFolder(path.toString()); // returns null if folder with same path already existed
+            // Anyway if exception was not thrown, folder will exist with this path.
             return new CFolder(path);
         } catch (DbxException e) {
             throw new ClueException(e);
@@ -115,5 +116,9 @@ public class DropBoxDrive implements ClueDrive {
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
+    }
+
+    public DbxClient getClient() {
+        return client;
     }
 }
