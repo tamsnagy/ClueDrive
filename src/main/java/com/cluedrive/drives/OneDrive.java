@@ -7,6 +7,8 @@ import com.cluedrive.onedrive.response.DriveMetadata;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.FileNotFoundException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,6 +51,21 @@ public class OneDrive implements ClueDrive {
 
     @Override
     public CFolder getRootFolder() throws ClueException {
+        return null;
+    }
+
+    @Override
+    public CFile uploadFile(CFolder remotePath, Path localPath) throws ClueException, FileNotFoundException {
+        return null;
+    }
+
+    @Override
+    public void delete(CResource resource) throws ClueException {
+
+    }
+
+    @Override
+    public CFile downloadFile(CPath remotePath, Path localPath) throws ClueException {
         return null;
     }
 

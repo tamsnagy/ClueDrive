@@ -39,6 +39,9 @@ public class CPath {
     }
 
     protected static void validatePath(String path) throws IllegalPathException {
+        if(path == null) {
+            throw new IllegalPathException("Path cannot be null");
+        }
         if(path.charAt(0) != '/') {
             throw new IllegalPathException("Path must begin with '/'");
         }
@@ -49,5 +52,21 @@ public class CPath {
                 throw new IllegalPathException("Part of remotePath contains illegal character: " + parts[i]);
             }
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CPath cPath = (CPath) o;
+
+        return absolutePath.equals(cPath.absolutePath);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return absolutePath.hashCode();
     }
 }

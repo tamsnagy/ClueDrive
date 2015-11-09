@@ -2,6 +2,8 @@ package com.cluedrive.commons;
 
 import com.cluedrive.exception.ClueException;
 
+import java.io.FileNotFoundException;
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -12,5 +14,8 @@ public interface ClueDrive {
     void setClient(String accessToken);
     CFolder createFolder(CFolder parentFolder, String folderName) throws ClueException;
     CFolder getRootFolder() throws ClueException;
+    CFile uploadFile(CFolder remotePath, Path localPath) throws ClueException, FileNotFoundException;
+    void delete(CResource resource) throws ClueException;
+    CFile downloadFile(CPath remotePath, Path localPath) throws ClueException;
 
 }

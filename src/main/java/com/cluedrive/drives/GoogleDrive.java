@@ -6,7 +6,9 @@ import com.cluedrive.exception.NotExistingPathException;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.*;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -89,6 +91,21 @@ public class GoogleDrive implements ClueDrive {
         } catch (IOException e) {
             throw new ClueException(e);
         }
+    }
+
+    @Override
+    public CFile uploadFile(CFolder remotePath, Path localPath) throws ClueException, FileNotFoundException {
+        return null;
+    }
+
+    @Override
+    public void delete(CResource resource) throws ClueException {
+
+    }
+
+    @Override
+    public CFile downloadFile(CPath remotePath, Path localPath) throws ClueException {
+        return null;
     }
 
     private Map<String, File> listChildren(String id) throws ClueException {

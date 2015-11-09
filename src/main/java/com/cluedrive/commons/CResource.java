@@ -1,12 +1,14 @@
 package com.cluedrive.commons;
 
+import java.nio.file.Path;
+
 /**
  * Created by Tamas on 2015-09-30.
  */
 public abstract class CResource {
     protected String id;
     protected CPath remotePath;
-    protected CPath localPath;
+    protected Path localPath;
 
     public CResource(CPath remotePath){
         this.remotePath = remotePath;
@@ -25,11 +27,11 @@ public abstract class CResource {
         this.remotePath = remotePath;
     }
 
-    public CPath getLocalPath() {
+    public Path getLocalPath() {
         return localPath;
     }
 
-    public void setLocalPath(CPath localPath) {
+    public void setLocalPath(Path localPath) {
         this.localPath = localPath;
     }
 
