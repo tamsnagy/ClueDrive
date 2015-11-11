@@ -33,6 +33,12 @@ public class CPath {
         return absolutePath.substring(absolutePath.lastIndexOf('/') + 1);
     }
 
+    public CPath getParent(){
+        if(absolutePath.length() <= 1)
+            return new CPath("/");
+        return new CPath(absolutePath.substring(0, absolutePath.lastIndexOf('/')));
+    }
+
     @Override
     public String toString() {
         return absolutePath;

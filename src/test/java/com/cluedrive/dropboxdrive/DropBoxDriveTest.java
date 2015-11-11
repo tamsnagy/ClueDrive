@@ -31,7 +31,6 @@ import static org.junit.Assert.assertTrue;
 public class DropBoxDriveTest  extends ClueDriveTest {
 
     public DropBoxDriveTest() throws IllegalPathException {
-        super();
     }
 
     protected void format() throws ClueException {
@@ -57,8 +56,8 @@ public class DropBoxDriveTest  extends ClueDriveTest {
     protected void listSetup() throws ClueException {
         try {
             DbxClient dbxClient = ((DropBoxDrive) drive).getClient();
-            dbxClient.createFolder(CPath.create(basePath,"folder1").toString());
-            dbxClient.createFolder(CPath.create(basePath,"folder2/folder3").toString());
+            dbxClient.createFolder(CPath.create(baseFolder.getRemotePath(), "folder1").toString());
+            dbxClient.createFolder(CPath.create(baseFolder.getRemotePath(), "folder2/folder3").toString());
         } catch (DbxException e) {
             throw new ClueException(e);
         }

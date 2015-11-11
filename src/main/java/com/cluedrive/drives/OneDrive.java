@@ -65,7 +65,7 @@ public class OneDrive implements ClueDrive {
     }
 
     @Override
-    public CFile downloadFile(CPath remotePath, Path localPath) throws ClueException {
+    public CFile downloadFile(CFile remoteFile, Path localPath) throws ClueException {
         return null;
     }
 

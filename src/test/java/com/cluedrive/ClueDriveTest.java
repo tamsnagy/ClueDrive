@@ -23,10 +23,11 @@ import static org.junit.Assert.assertTrue;
 public abstract class ClueDriveTest {
     protected ClueDrive drive;
 
-    protected final CPath basePath;
+    protected static final String BASE_FOLDER_NAME = "ClueDriveTest";
+    protected CFolder baseFolder;
 
     public ClueDriveTest() throws IllegalPathException {
-        basePath = CPath.create("/ClueDriveTest");
+        baseFolder = new CFolder(CPath.create("/"+ BASE_FOLDER_NAME));
     }
 
     protected abstract void format() throws ClueException;
@@ -47,7 +48,7 @@ public abstract class ClueDriveTest {
     public void testList() throws ClueException {
         listSetup();
         //Test listing.
-        List<CResource> resources = drive.list(basePath);
+        List<CResource> resources = drive.list(baseFolder.getRemotePath());
         assertEquals(2, resources.size());
         int subFolder1 = drive.list(resources.get(0).getRemotePath()).size();
         int subFolder2 = drive.list(resources.get(1).getRemotePath()).size();
@@ -57,38 +58,38 @@ public abstract class ClueDriveTest {
 
     @Test
     public void testCreateFolder() throws ClueException {
-        CFolder folder = drive.createFolder(new CFolder(CPath.create(basePath, "apple/pear")), "banana");
-        assertEquals("/ClueDriveTest/apple/pear/banana", folder.getRemotePath().toString());
+        CFolder folder = drive.createFolder(baseFolder, "banana");
+        assertEquals("/" + BASE_FOLDER_NAME + "/banana", folder.getRemotePath().toString());
     }
 
     @Test
     public void testDelete() throws ClueException {
-        CFolder cFolder = drive.createFolder(new CFolder(basePath), "delete");
-        assertEquals(1, drive.list(basePath).size());
+        CFolder cFolder = drive.createFolder(baseFolder, "delete");
+        assertEquals(1, drive.list(baseFolder.getRemotePath()).size());
         drive.delete(cFolder);
-        assertEquals(0, drive.list(basePath).size());
+        assertEquals(0, drive.list(baseFolder.getRemotePath()).size());
     }
 
     @Test
     public void testFileUpload() throws ClueException, FileNotFoundException {
-        CFolder cFolder = drive.createFolder(new CFolder(basePath), "upload");
+        CFolder cFolder = drive.createFolder(baseFolder, "upload");
         Path uploadThis = Paths.get("build/resources/test/test.txt");
         CFile cFile = drive.uploadFile(cFolder, uploadThis);
         assertEquals(uploadThis, cFile.getLocalPath());
-        assertEquals("/ClueDriveTest/upload/test.txt", cFile.getRemotePath().toString());
+        assertEquals("/" + BASE_FOLDER_NAME + "/upload/test.txt", cFile.getRemotePath().toString());
     }
 
     @Test
     public void testFileDownload() throws ClueException, FileNotFoundException {
-        CFolder cFolder = drive.createFolder(new CFolder(CPath.create("/")), "download");
+        CFolder cFolder = drive.createFolder(baseFolder, "download");
         Path uploadThis = Paths.get("build/resources/test/test.txt");
         CFile cFile = drive.uploadFile(cFolder, uploadThis);
         assertEquals(uploadThis, cFile.getLocalPath());
-        assertEquals("/download/test.txt", cFile.getRemotePath().toString());
+        assertEquals("/" + BASE_FOLDER_NAME + "/download/test.txt", cFile.getRemotePath().toString());
 
         Path destination = Paths.get("build/resources/test/downloaded.txt");
 
-        CFile downloadedFile = drive.downloadFile(cFile.getRemotePath(), destination);
+        CFile downloadedFile = drive.downloadFile(cFile, destination);
 
         assertEquals(cFile.getRemotePath(), downloadedFile.getRemotePath());
         assertEquals(destination, downloadedFile.getLocalPath());

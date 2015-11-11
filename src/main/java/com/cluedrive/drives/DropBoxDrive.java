@@ -98,9 +98,9 @@ public class DropBoxDrive implements ClueDrive {
     }
 
     @Override
-    public CFile downloadFile(CPath remotePath, Path localPath) throws ClueException {
+    public CFile downloadFile(CFile remoteFile, Path localPath) throws ClueException {
         try(FileOutputStream outputStream = new FileOutputStream(localPath.toFile())) {
-            DbxEntry.File downloadedFile = client.getFile(remotePath.toString(),
+            DbxEntry.File downloadedFile = client.getFile(remoteFile.getRemotePath().toString(),
                     null, outputStream);
             CFile cFile = new CFile(CPath.create(downloadedFile.path), downloadedFile.numBytes, downloadedFile.lastModified);
             cFile.setLocalPath(localPath);

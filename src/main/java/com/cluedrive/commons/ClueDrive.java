@@ -14,8 +14,8 @@ public interface ClueDrive {
     void setClient(String accessToken);
     CFolder createFolder(CFolder parentFolder, String folderName) throws ClueException;
     CFolder getRootFolder() throws ClueException;
-    CFile uploadFile(CFolder remotePath, Path localPath) throws ClueException, FileNotFoundException;
+    CFile uploadFile(CFolder remoteFolder, Path localPath) throws ClueException, FileNotFoundException;
     void delete(CResource resource) throws ClueException;
-    CFile downloadFile(CPath remotePath, Path localPath) throws ClueException;
+    CFile downloadFile(CFile remoteFile, Path localPath) throws ClueException;
 
 }
