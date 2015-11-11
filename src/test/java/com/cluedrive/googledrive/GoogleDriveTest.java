@@ -70,9 +70,6 @@ public class GoogleDriveTest  extends ClueDriveTest{
         }
     }
 
-    public GoogleDriveTest() throws IllegalPathException {
-    }
-
     /**
      * Creates an authorized Credential object.
      * @return an authorized Credential object.

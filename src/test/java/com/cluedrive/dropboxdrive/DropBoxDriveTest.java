@@ -30,9 +30,6 @@ import static org.junit.Assert.assertTrue;
  */
 public class DropBoxDriveTest  extends ClueDriveTest {
 
-    public DropBoxDriveTest() throws IllegalPathException {
-    }
-
     protected void format() throws ClueException {
         try {
             DbxClient dbxClient = ((DropBoxDrive) drive).getClient();

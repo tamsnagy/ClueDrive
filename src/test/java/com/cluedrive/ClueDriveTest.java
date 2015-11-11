@@ -26,8 +26,12 @@ public abstract class ClueDriveTest {
     protected static final String BASE_FOLDER_NAME = "ClueDriveTest";
     protected CFolder baseFolder;
 
-    public ClueDriveTest() throws IllegalPathException {
-        baseFolder = new CFolder(CPath.create("/"+ BASE_FOLDER_NAME));
+    public ClueDriveTest() {
+        try {
+            baseFolder = new CFolder(CPath.create("/"+ BASE_FOLDER_NAME));
+        } catch (IllegalPathException e) {
+            System.err.println("Tests cannot run. Base folder is not set up correctly");
+        }
     }
 
     protected abstract void format() throws ClueException;
