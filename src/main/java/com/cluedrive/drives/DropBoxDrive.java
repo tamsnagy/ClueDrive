@@ -14,10 +14,9 @@ import java.util.Locale;
 /**
  * Created by Tamas on 2015-09-24.
  */
-public class DropBoxDrive implements ClueDrive {
+public class DropBoxDrive extends ClueDrive {
     private DbxRequestConfig config;
     private DbxClient client;
-    private String accessToken;
 
     public DropBoxDrive() {
         config = new DbxRequestConfig("ClueDrive", Locale.getDefault().toString());
@@ -46,7 +45,7 @@ public class DropBoxDrive implements ClueDrive {
     }
 
     @Override
-    public void setClient(String accessToken) {
+    public void setToken(String accessToken) {
         this.client = new DbxClient(config, accessToken);
     }
 
@@ -108,14 +107,6 @@ public class DropBoxDrive implements ClueDrive {
         } catch (DbxException| IOException e) {
             throw new ClueException(e);
         }
-    }
-
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
     }
 
     public DbxClient getClient() {

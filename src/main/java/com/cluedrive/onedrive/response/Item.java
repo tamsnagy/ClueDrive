@@ -6,21 +6,12 @@ import java.util.Date;
  * Created by Tamas on 2015-10-11.
  */
 public class Item {
-    private String id;
     private String name;
     private long size;
     private Date createdDateTime;
     private Date lastModifiedDateTime;
     private Folder folder;
     private File file;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;

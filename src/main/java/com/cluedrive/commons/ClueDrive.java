@@ -9,13 +9,21 @@ import java.util.List;
 /**
  * Created by Tamas on 2015-09-24.
  */
-public interface ClueDrive {
-    List<CResource> list(CPath path) throws ClueException;
-    void setClient(String accessToken);
-    CFolder createFolder(CFolder parentFolder, String folderName) throws ClueException;
-    CFolder getRootFolder() throws ClueException;
-    CFile uploadFile(CFolder remoteFolder, Path localPath) throws ClueException, FileNotFoundException;
-    void delete(CResource resource) throws ClueException;
-    CFile downloadFile(CFile remoteFile, Path localPath) throws ClueException;
+public abstract class ClueDrive {
+    protected String accessToken = null;
+
+    public abstract List<CResource> list(CPath path) throws ClueException;
+    public void setToken(String token) {
+        accessToken = token;
+    }
+    public String getToken() {
+        return accessToken;
+    }
+    public abstract CFolder createFolder(CFolder parentFolder, String folderName) throws ClueException;
+    public abstract CFolder getRootFolder() throws ClueException;
+    public abstract CFile uploadFile(CFolder remoteFolder, Path localPath) throws ClueException, FileNotFoundException;
+    public abstract void delete(CResource resource) throws ClueException;
+    public abstract CFile downloadFile(CFile remoteFile, Path localPath) throws ClueException;
+
 
 }

@@ -7,23 +7,29 @@ public class URLUtility {
     public final String URI_BASE;
     private StringBuilder urlBuilder;
     private boolean optionAdded;
+    private boolean pathAdded;
     private String accessToken;
 
     public URLUtility(String UriBase, String accessToken) {
         this.URI_BASE = UriBase;
         this.accessToken = accessToken;
         this.optionAdded = false;
+        this.pathAdded = false;
     }
 
     public URLUtility base() {
         urlBuilder = new StringBuilder(URI_BASE);
         optionAdded = false;
+        pathAdded = false;
         return this;
     }
 
     public URLUtility route(String route) {
         if(optionAdded) {
             return null;
+        }
+        if(pathAdded) {
+            urlBuilder.append(":");
         }
         urlBuilder.append("/").append(route);
         return this;
@@ -33,23 +39,16 @@ public class URLUtility {
         if(optionAdded) {
             return null;
         }
-        urlBuilder.append("/").append(path.toString());
+        pathAdded = true;
+        urlBuilder.append(":/").append(path.toString());
         return this;
     }
 
-    public  URLUtility segment(String id) {
+    public  URLUtility segment(CPath parentPath, String name) {
         if(optionAdded) {
             return null;
         }
-        urlBuilder.append("/").append(id);
-        return this;
-    }
-
-    public URLUtility pathWithColon(CPath path) {
-        if(optionAdded) {
-            return null;
-        }
-        urlBuilder.append("/root:/").append(path.toString()).append(":");
+        urlBuilder.append(":/").append(parentPath.toString()).append("/").append(name);
         return this;
     }
 
@@ -85,6 +84,10 @@ public class URLUtility {
             }
             urlBuilder.append(accessToken);
         }
+        return urlBuilder.toString();
+    }
+
+    public String simpleString(){
         return urlBuilder.toString();
     }
 }

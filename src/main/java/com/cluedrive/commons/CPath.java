@@ -28,15 +28,19 @@ public class CPath {
     }
 
     public String getLeaf() {
-        if(absolutePath.length() <= 1)
+        if(isRootPath())
             return "/";
         return absolutePath.substring(absolutePath.lastIndexOf('/') + 1);
     }
 
     public CPath getParent(){
-        if(absolutePath.length() <= 1)
+        if(isRootPath())
             return new CPath("/");
         return new CPath(absolutePath.substring(0, absolutePath.lastIndexOf('/')));
+    }
+
+    public boolean isRootPath() {
+        return "/".equals(absolutePath);
     }
 
     @Override

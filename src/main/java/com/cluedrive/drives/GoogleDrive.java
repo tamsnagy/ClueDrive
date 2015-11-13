@@ -20,7 +20,7 @@ import java.util.*;
 /**
  * Created by Tamas on 2015-10-01.
  */
-public class GoogleDrive implements ClueDrive {
+public class GoogleDrive extends ClueDrive {
     private Drive client;
     public static final String FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
 
@@ -64,7 +64,7 @@ public class GoogleDrive implements ClueDrive {
     }
 
     @Override
-    public void setClient(String accessToken) {
+    public void setToken(String accessToken) {
 
     }
 

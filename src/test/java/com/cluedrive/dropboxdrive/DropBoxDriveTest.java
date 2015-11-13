@@ -5,21 +5,12 @@ import com.cluedrive.commons.*;
 import com.cluedrive.drives.DropBoxDrive;
 
 import com.cluedrive.exception.ClueException;
-import com.cluedrive.exception.IllegalPathException;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;
 import com.dropbox.core.DbxException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -47,7 +38,7 @@ public class DropBoxDriveTest  extends ClueDriveTest {
         properties.load(config);
         String accessToken = properties.getProperty("dropBox.token");
         drive = new DropBoxDrive();
-        drive.setClient(accessToken);
+        drive.setToken(accessToken);
     }
 
     protected void listSetup() throws ClueException {

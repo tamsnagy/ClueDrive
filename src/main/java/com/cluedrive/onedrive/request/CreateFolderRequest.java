@@ -5,7 +5,7 @@ package com.cluedrive.onedrive.request;
  */
 public class CreateFolderRequest {
     private String name;
-    private FolderRequest folder;
+    private FolderRequest folder = new FolderRequest();
 
     public CreateFolderRequest() {
     }
