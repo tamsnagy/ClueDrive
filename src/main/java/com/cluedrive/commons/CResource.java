@@ -51,4 +51,23 @@ public abstract class CResource {
     public String toString() {
         return remotePath.toString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CResource cResource = (CResource) o;
+
+        if (id != null ? !id.equals(cResource.id) : cResource.id != null) return false;
+        return remotePath.equals(cResource.remotePath);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + remotePath.hashCode();
+        return result;
+    }
 }

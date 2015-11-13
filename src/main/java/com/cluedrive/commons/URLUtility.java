@@ -30,6 +30,7 @@ public class URLUtility {
             urlBuilder.append(":");
         }
         urlBuilder.append("/").append(route);
+        pathAdded = false;
         return this;
     }
 
@@ -37,8 +38,8 @@ public class URLUtility {
         if(optionAdded) {
             return null;
         }
-        pathAdded = true;
         urlBuilder.append(":").append(path.toString());
+        pathAdded = true;
         return this;
     }
 
@@ -47,6 +48,7 @@ public class URLUtility {
             return null;
         }
         urlBuilder.append(":").append(parentPath.toString()).append("/").append(name);
+        pathAdded = true;
         return this;
     }
 
