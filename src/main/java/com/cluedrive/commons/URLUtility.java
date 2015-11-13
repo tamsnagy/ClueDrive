@@ -8,11 +8,9 @@ public class URLUtility {
     private StringBuilder urlBuilder;
     private boolean optionAdded;
     private boolean pathAdded;
-    private String accessToken;
 
-    public URLUtility(String UriBase, String accessToken) {
+    public URLUtility(String UriBase) {
         this.URI_BASE = UriBase;
-        this.accessToken = accessToken;
         this.optionAdded = false;
         this.pathAdded = false;
     }
@@ -40,7 +38,7 @@ public class URLUtility {
             return null;
         }
         pathAdded = true;
-        urlBuilder.append(":/").append(path.toString());
+        urlBuilder.append(":").append(path.toString());
         return this;
     }
 
@@ -48,7 +46,7 @@ public class URLUtility {
         if(optionAdded) {
             return null;
         }
-        urlBuilder.append(":/").append(parentPath.toString()).append("/").append(name);
+        urlBuilder.append(":").append(parentPath.toString()).append("/").append(name);
         return this;
     }
 
@@ -75,19 +73,6 @@ public class URLUtility {
     }
 
     public String toString() {
-        if(accessToken != null) {
-            if(optionAdded) {
-                urlBuilder.append("&access_token=");
-            } else {
-                urlBuilder.append("?access_token=");
-                optionAdded = true;
-            }
-            urlBuilder.append(accessToken);
-        }
-        return urlBuilder.toString();
-    }
-
-    public String simpleString(){
         return urlBuilder.toString();
     }
 }

@@ -48,7 +48,6 @@ public abstract class ClueDriveTest {
         format();
     }
 
-/*
     @Test
     public void testList() throws ClueException {
         listSetup();
@@ -60,7 +59,6 @@ public abstract class ClueDriveTest {
         assertTrue( (0 == subFolder1 && 1 == subFolder2) ||
                 (1 == subFolder1 && 0 == subFolder2));
     }
-*/
 
     @Test
     public void testCreateFolder() throws ClueException {
@@ -68,7 +66,7 @@ public abstract class ClueDriveTest {
         assertEquals("/" + BASE_FOLDER_NAME + "/banana", folder.getRemotePath().toString());
     }
 
-    /*@Test
+    @Test
     public void testDelete() throws ClueException {
         CFolder cFolder = drive.createFolder(baseFolder, "delete");
         assertEquals(1, drive.list(baseFolder.getRemotePath()).size());
@@ -76,7 +74,7 @@ public abstract class ClueDriveTest {
         assertEquals(0, drive.list(baseFolder.getRemotePath()).size());
     }
 
-    @Test
+    /*@Test
     public void testFileUpload() throws ClueException, FileNotFoundException {
         CFolder cFolder = drive.createFolder(baseFolder, "upload");
         Path uploadThis = Paths.get("build/resources/test/test.txt");

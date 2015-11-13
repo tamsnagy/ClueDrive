@@ -6,10 +6,17 @@ import com.cluedrive.onedrive.request.CreateFolderRequest;
 import com.cluedrive.onedrive.response.ChildrenList;
 import com.cluedrive.onedrive.response.CreateFolderResponse;
 import com.cluedrive.onedrive.response.DriveMetadata;
+import com.cluedrive.onedrive.response.Item;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,19 +29,34 @@ public class OneDrive extends ClueDrive {
     public static final String URI_BASE = "https://api.onedrive.com/v1.0/drive/special/approot";
     private static final String LIST_FILTERS = "name,size,createdDateTime,lastModifiedDateTime,folder,file";
     private URLUtility url;
+    private HttpHeaders headers;
+    private ObjectMapper MAPPER;
+
+    public OneDrive() {
+        headers = new HttpHeaders();
+        MAPPER = new ObjectMapper();
+        MAPPER.disable(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS);
+    }
 
     @Override
     public List<CResource> list(CPath path) throws ClueException {
 
         ResponseEntity<ChildrenList> response;
+        HttpEntity entity = new HttpEntity(headers);
         if(path.isRootPath()) {
-            response = restTemplate.getForEntity(
+            response = restTemplate.exchange(
                     url.base().route("children").filter(LIST_FILTERS).toString(),
-                    ChildrenList.class);
+                    HttpMethod.GET,
+                    entity,
+                    ChildrenList.class
+            );
         } else {
-            response = restTemplate.getForEntity(
+            response = restTemplate.exchange(
                     url.base().segment(path).route("children").filter(LIST_FILTERS).toString(),
-                    ChildrenList.class);
+                    HttpMethod.GET,
+                    entity,
+                    ChildrenList.class
+            );
         }
         return response.getBody().getValue().stream().map(item -> {
             CPath resourcePath = CPath.create(path, item.getName());
@@ -49,16 +71,24 @@ public class OneDrive extends ClueDrive {
     @Override
     public void setToken(String accessToken) {
         this.accessToken = accessToken;
-        url = new URLUtility(URI_BASE, accessToken);
+        url = new URLUtility(URI_BASE);
+        headers.set("Authorization", "Bearer " + accessToken);
+        headers.set("Content-Type", "application/json");
     }
 
     @Override
     public CFolder createFolder(CFolder parentFolder, String folderName) throws ClueException {
-        /*CreateFolderResponse response = */restTemplate.put(
-                url.base().segment(parentFolder.getRemotePath(), folderName).query("nameConflict", "replace").toString(),
-                new CreateFolderRequest(folderName)/*,
-                CreateFolderResponse.class*/);
-        return new CFolder(CPath.create(parentFolder.getRemotePath(), folderName));
+        try {
+            HttpEntity<byte[]> entity = new HttpEntity<>(MAPPER.writeValueAsBytes(new CreateFolderRequest(folderName)), headers);
+            ResponseEntity<CreateFolderResponse> response = restTemplate.exchange(
+                    url.base().segment(parentFolder.getRemotePath(), folderName).query("nameConflict", "rename").toString(),
+                    HttpMethod.PUT,
+                    entity,
+                    CreateFolderResponse.class);
+            return new CFolder(CPath.create(parentFolder.getRemotePath(), response.getBody().getName()));
+        } catch (IOException e) {
+            throw new ClueException(e);
+        }
     }
 
     @Override
@@ -73,19 +103,18 @@ public class OneDrive extends ClueDrive {
 
     @Override
     public void delete(CResource resource) throws ClueException {
-
+        HttpEntity entity = new HttpEntity(headers);
+        restTemplate.exchange(
+                url.base().segment(resource.getRemotePath()).toString(),
+                HttpMethod.DELETE,
+                entity,
+                Item.class
+        );
     }
 
     @Override
     public CFile downloadFile(CFile remoteFile, Path localPath) throws ClueException {
         return null;
     }
-
-    /*public void setDefaultDrive() {
-        ResponseEntity<DriveMetadata> response = restTemplate.getForEntity("https://api.onedrive.com/v1.0/drive?access_token=" + accessToken, DriveMetadata.class);
-        driveId = response.getBody().getId();
-    }*/
-
-
 
 }

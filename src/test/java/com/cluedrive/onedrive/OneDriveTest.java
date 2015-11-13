@@ -35,58 +35,58 @@ public class OneDriveTest extends ClueDriveTest{
     private static URLUtility url;
     private static final String LIST_FILTERS = "id,name,size,createdDateTime,lastModifiedDateTime,folder,file";
 
+    private ObjectMapper MAPPER;
+    private HttpHeaders headers;
+
     //TODO: remove
     private static boolean login = false;
+
+    public OneDriveTest() {
+        MAPPER = new ObjectMapper();
+        MAPPER.disable(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS);
+        headers = new HttpHeaders();
+    }
 
      @Override
     protected void format() throws ClueException {
         CFolder baseFolderCandidate = null;
          try {
-             HttpHeaders headers = new HttpHeaders();
-             headers.set("Authorization", "Bearer " +drive.getToken());
-             headers.set("Content-Type", "application/json");
              HttpEntity entity = new HttpEntity(headers);
-             String requestUrl = url.base().route("children").simpleString();
-             System.out.println("token: " + drive.getToken());
-             System.out.println("url: " + requestUrl);
+             String requestUrl = url.base().route("children").toString();
              ResponseEntity<ChildrenList> rootChildren = restTemplate.exchange(
                      requestUrl,
                      HttpMethod.GET,
                      entity,
                      ChildrenList.class
                      );
-
             for (Item rootItem : rootChildren.getBody().getValue()) {
                 if (rootItem.getFolder() != null && BASE_FOLDER_NAME.equals(rootItem.getName())) {
-                    ResponseEntity<ChildrenList> removableItems = restTemplate.getForEntity(
+                    ResponseEntity<ChildrenList> removableItems = restTemplate.exchange(
                             url.base().segment(baseFolder.getRemotePath()).route("children").filter(LIST_FILTERS).toString(),
+                            HttpMethod.GET,
+                            entity,
                             ChildrenList.class);
                     baseFolderCandidate = new CFolder(CPath.create("/" + BASE_FOLDER_NAME));
                     for (Item removableItem : removableItems.getBody().getValue()) {
-                        restTemplate.delete(url.base()
-                                .segment(CPath.create(baseFolder.getRemotePath(), removableItem.getName()))
-                                .toString());
+                        restTemplate.exchange(
+                                url.base().segment(CPath.create(baseFolder.getRemotePath(), removableItem.getName())).toString(),
+                                HttpMethod.DELETE,
+                                entity,
+                                Item.class
+                        );
                     }
                     continue;
                 }
             }
             if (baseFolderCandidate == null) {
-
-                    HttpHeaders headers2 = new HttpHeaders();
-                    headers2.set("Authorization", "Bearer " +drive.getToken());
-                    headers2.set("Content-Type", "application/json");
-                 ObjectMapper MAPPER = new ObjectMapper();
-                MAPPER.disable(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS);
-                    HttpEntity<byte[]> entity2 = new HttpEntity<>(MAPPER.writeValueAsBytes(new CreateFolderRequest(BASE_FOLDER_NAME)), headers2);
-                    System.out.println(headers2);
-                    //CookieRestTemplate cookieRestTemplate = new CookieRestTemplate(Arrays.asList("MSFPC=ID=7927d2139610224eb935bbce8dd3d1b7&CS=3&LV=201509&V=1", "_ga=GA1.2.1425413201.1442182321"));
+                    HttpEntity<byte[]> entity2 = new HttpEntity<>(MAPPER.writeValueAsBytes(new CreateFolderRequest(BASE_FOLDER_NAME)), headers);
                     ResponseEntity<CreateFolderResponse> response2 = restTemplate.exchange(
                             requestUrl,
                             HttpMethod.POST,
                             entity2,
                             CreateFolderResponse.class);
 
-                baseFolderCandidate = new CFolder(CPath.create("/"+BASE_FOLDER_NAME));
+                baseFolderCandidate = new CFolder(CPath.create("/"+response2.getBody().getName()));
             }
          } catch (HttpClientErrorException e) {
              System.out.println(e.getStatusCode());
@@ -124,15 +124,6 @@ public class OneDriveTest extends ClueDriveTest{
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
-           /* ResponseEntity<String> response = restTemplate.getForEntity(new StringBuilder()
-                            .append("https://login.live.com/oauth20_authorize.srf?client_id=")
-                            .append(clientId)
-                            .append("&scope=")
-                            .append(scope)
-                            .append("&response_type=token&redirect_uri=https://login.live.com/oauth20_desktop.srf")
-                            .toString(),
-                    String.class);
-            System.out.println("Login Response: " + response);*/
         }
 
         properties.load(config);
@@ -140,14 +131,38 @@ public class OneDriveTest extends ClueDriveTest{
         drive = new OneDrive();
         drive.setToken(accessToken);
 
-        url = new URLUtility(OneDrive.URI_BASE, accessToken);
+        url = new URLUtility(OneDrive.URI_BASE);
+
+        headers.set("Authorization", "Bearer " + drive.getToken());
+        headers.set("Content-Type", "application/json");
     }
 
     @Override
     protected void listSetup() throws ClueException {
-        /*CreateFolderResponse response = */restTemplate.put(
-                url.base().segment(baseFolder.getRemotePath(), "folder1").query("nameConflict", "replace").toString(),
-                new CreateFolderRequest("folder1")/*,
-                CreateFolderResponse.class*/);
+        try {
+            String folder1 = "folder1", folder2 = "folder2", folder3 = "folder3";
+            HttpEntity<byte[]> entity1 = new HttpEntity<>(MAPPER.writeValueAsBytes(new CreateFolderRequest(folder1)), headers);
+            HttpEntity<byte[]> entity2 = new HttpEntity<>(MAPPER.writeValueAsBytes(new CreateFolderRequest(folder2)), headers);
+            HttpEntity<byte[]> entity3 = new HttpEntity<>(MAPPER.writeValueAsBytes(new CreateFolderRequest(folder3)), headers);
+            restTemplate.exchange(
+                    url.base().segment(baseFolder.getRemotePath(), folder1).query("nameConflict", "rename").toString(),
+                    HttpMethod.PUT,
+                    entity1,
+                    CreateFolderResponse.class);
+            CFolder cFolder2 = new CFolder(CPath.create(baseFolder.getRemotePath(), folder2));
+            restTemplate.exchange(
+                    url.base().segment(baseFolder.getRemotePath(), folder2).query("nameConflict", "rename").toString(),
+                    HttpMethod.PUT,
+                    entity2,
+                    CreateFolderResponse.class);
+            restTemplate.exchange(
+                    url.base().segment(cFolder2.getRemotePath(), folder3).query("nameConflict", "rename").toString(),
+                    HttpMethod.PUT,
+                    entity3,
+                    CreateFolderResponse.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
