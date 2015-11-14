@@ -2,6 +2,7 @@ package com.cluedrive.drives;
 
 import com.cluedrive.commons.*;
 import com.cluedrive.exception.ClueException;
+import com.cluedrive.exception.InternalErrorException;
 import com.cluedrive.onedrive.request.CreateFileRequest;
 import com.cluedrive.onedrive.request.CreateFolderRequest;
 import com.cluedrive.onedrive.response.ChildrenList;
@@ -20,7 +21,13 @@ import org.springframework.web.client.RestTemplate;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -30,6 +37,7 @@ public class OneDrive extends ClueDrive {
     private RestTemplate restTemplate = new RestTemplate();
     public static final String URI_BASE = "https://api.onedrive.com/v1.0/drive/special/approot";
     private static final String LIST_FILTERS = "name,size,createdDateTime,lastModifiedDateTime,folder,file";
+    private static final String DOWNLOAD_URL_FIELD = "@content.downloadUrl";
     private URLUtility url;
     private HttpHeaders jsonHeaders;
     private ObjectMapper MAPPER;
@@ -150,14 +158,30 @@ public class OneDrive extends ClueDrive {
     public CFile downloadFile(CFile remoteFile, Path localPath) throws ClueException {
         HttpHeaders rangeHeader = new HttpHeaders();
         rangeHeader.set("Authorization", "Bearer " + accessToken);
-        //rangeHeader.set("Range", "bytes=0-1023");
         HttpEntity entity = new HttpEntity(rangeHeader);
-        ResponseEntity<Item> fileResponse = restTemplate.exchange(
-                url.base().segment(remoteFile.getRemotePath()).route("content").toString(),
+        ResponseEntity<byte[]> fileMetadata = restTemplate.exchange(
+                url.base().segment(remoteFile.getRemotePath()).toString(),
                 HttpMethod.GET,
                 entity,
-                Item.class);
-        return null;
+                byte[].class);
+        try {
+            Map<String, String> jsonResponse = MAPPER.readValue(fileMetadata.getBody(), new HashMap<String, String>().getClass());
+            if(! jsonResponse.keySet().contains(DOWNLOAD_URL_FIELD)) {
+                throw new InternalErrorException("Download url missing from response");
+            }
+            String downloadUrl = jsonResponse.get(DOWNLOAD_URL_FIELD);
+            ResponseEntity<byte[]> fileContent = restTemplate.getForEntity(downloadUrl, byte[].class);
+            try(FileOutputStream outputStream = new FileOutputStream(localPath.toFile())) {
+                outputStream.write(fileContent.getBody());
+            }
+            CFile returnFile = new CFile(remoteFile.getRemotePath(),
+                    remoteFile.getFileSize(),
+                    remoteFile.getLastModified());
+            returnFile.setLocalPath(localPath);
+            return returnFile;
+        } catch (IOException e) {
+            throw new ClueException(e);
+        }
     }
 
 }

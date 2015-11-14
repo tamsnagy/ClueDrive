@@ -48,7 +48,7 @@ public abstract class ClueDriveTest {
         format();
     }
 
-    /*@Test
+    @Test
     public void testList() throws ClueException {
         listSetup();
         //Test listing.
@@ -81,7 +81,7 @@ public abstract class ClueDriveTest {
         CFile cFile = drive.uploadFile(cFolder, uploadThis);
         assertEquals(uploadThis, cFile.getLocalPath());
         assertEquals("/" + BASE_FOLDER_NAME + "/upload/test.txt", cFile.getRemotePath().toString());
-    } */
+    }
 
     @Test
     public void testFileDownload() throws ClueException, FileNotFoundException {
