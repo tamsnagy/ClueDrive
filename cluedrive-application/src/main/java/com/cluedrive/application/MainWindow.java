@@ -34,12 +34,24 @@ public class MainWindow extends JFrame {
         fileMenu.add(menuItem);
 
         menuItem = new JMenuItem("Set Local Directory");
-        //TODO: Add file picker
+        menuItem.addActionListener(actionEvent -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            fileChooser.setMultiSelectionEnabled(false);
+            fileChooser.setCurrentDirectory(model.getLocalRootPath().toFile());
+            if(JFileChooser.APPROVE_OPTION == fileChooser.showDialog(this, "Set as local home directory")) {
+                //TODO: maybe copy all files from there to new place
+                model.setLocalRootPath(fileChooser.getSelectedFile().toPath());
+            }
+        });
         fileMenu.add(menuItem);
 
 
         fileMenu.addSeparator();
         menuItem = new JMenuItem("Exit");
+        menuItem.addActionListener(actionEvent -> {
+            this.dispose();
+        });
         fileMenu.add(menuItem);
 
 

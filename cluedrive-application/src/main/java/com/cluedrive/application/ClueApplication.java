@@ -16,9 +16,9 @@ import java.util.List;
 
 public class ClueApplication implements Serializable {
     private static final Path setupOrigin = Paths.get(new JFileChooser().getFileSystemView().getDefaultDirectory().getParentFile().getAbsolutePath() + File.separator + "ClueDrive" + File.separator + "setupData.obj");
-    public transient Path localRootPath;
+    private transient Path localRootPath;
     private String localRootPathAsString;
-    public List<ClueDrive> myDrives = new ArrayList<>();
+    private List<ClueDrive> myDrives = new ArrayList<>();
 
     public ClueApplication() {
         localRootPath = Paths.get(new JFileChooser().getFileSystemView().getDefaultDirectory().getAbsolutePath() + File.separator + "ClueDrive local files");
@@ -76,6 +76,8 @@ public class ClueApplication implements Serializable {
 
     public void setLocalRootPath(Path localRootPath) {
         this.localRootPath = localRootPath;
+        this.localRootPathAsString = localRootPath.toString();
+        persist();
     }
 
     public List<ClueDrive> getMyDrives() {
@@ -84,6 +86,7 @@ public class ClueApplication implements Serializable {
 
     public void setMyDrives(List<ClueDrive> myDrives) {
         this.myDrives = myDrives;
+        persist();
     }
 
     public static Path getSetupOrigin() {
@@ -97,4 +100,6 @@ public class ClueApplication implements Serializable {
     public void setLocalRootPathAsString(String localRootPathAsString) {
         this.localRootPathAsString = localRootPathAsString;
     }
+
+
 }
