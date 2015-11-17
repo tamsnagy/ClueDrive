@@ -1,7 +1,5 @@
 package com.cluedrive.application;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import javax.swing.*;
 import java.io.IOException;
 import java.net.URI;
@@ -12,10 +10,13 @@ import java.net.URISyntaxException;
  */
 public class MainWindow extends JFrame {
     private static MainWindow instance = null;
+    private ClueApplication model;
+
+    public void setModel(ClueApplication model) {
+        this.model = model;
+    }
 
     private MainWindow() {
-
-
         setTitle("ClueDrive Application");
         setSize(1100, 650);
 

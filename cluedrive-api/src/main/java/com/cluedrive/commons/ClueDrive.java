@@ -3,13 +3,14 @@ package com.cluedrive.commons;
 import com.cluedrive.exception.ClueException;
 
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.List;
 
 /**
  * Created by Tamas on 2015-09-24.
  */
-public abstract class ClueDrive {
+public abstract class ClueDrive implements Serializable {
     protected String accessToken = null;
 
     public abstract List<CResource> list(CPath path) throws ClueException;
