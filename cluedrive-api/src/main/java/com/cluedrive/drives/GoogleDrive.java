@@ -25,6 +25,7 @@ public class GoogleDrive extends ClueDrive {
     public static final String FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
 
     public GoogleDrive(Drive client) {
+        provider = ClueDriveProvider.GOOGLE;
         this.client = client;
     }
 
@@ -64,7 +65,7 @@ public class GoogleDrive extends ClueDrive {
     }
 
     @Override
-    public void setToken(String accessToken) {
+    public void setAccessToken(String accessToken) {
 
     }
 

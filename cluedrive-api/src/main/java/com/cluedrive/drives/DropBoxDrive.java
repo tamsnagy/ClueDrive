@@ -15,11 +15,14 @@ import java.util.Locale;
  * Created by Tamas on 2015-09-24.
  */
 public class DropBoxDrive extends ClueDrive {
-    private DbxRequestConfig config;
-    private DbxClient client;
+    private transient DbxRequestConfig config;
+    private transient DbxClient client;
+    private String accessToken;
 
     public DropBoxDrive() {
+        provider = ClueDriveProvider.DROPBOX;
         config = new DbxRequestConfig("ClueDrive", Locale.getDefault().toString());
+        this.client = new DbxClient(config, /*accessToken*/"mwrh-csr5dAAAAAAAAAABjTRHX8wsvSsGzTJL1Qb_prLPUilGrCqfJiahWuYyAPY");
     }
 
     @Override
@@ -45,7 +48,7 @@ public class DropBoxDrive extends ClueDrive {
     }
 
     @Override
-    public void setToken(String accessToken) {
+    public void setAccessToken(String accessToken) {
         this.client = new DbxClient(config, accessToken);
     }
 

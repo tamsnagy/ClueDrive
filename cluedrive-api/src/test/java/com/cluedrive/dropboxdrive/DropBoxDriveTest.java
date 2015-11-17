@@ -38,7 +38,7 @@ public class DropBoxDriveTest  extends ClueDriveTest {
         properties.load(config);
         String accessToken = properties.getProperty("dropBox.token");
         drive = new DropBoxDrive();
-        drive.setToken(accessToken);
+        drive.setAccessToken(accessToken);
     }
 
     protected void listSetup() throws ClueException {

@@ -1,6 +1,9 @@
 package com.cluedrive.application;
 
 import com.cluedrive.commons.ClueDrive;
+import com.cluedrive.commons.ClueDriveProvider;
+import com.cluedrive.drives.DropBoxDrive;
+import com.cluedrive.drives.GoogleDrive;
 
 import javax.swing.*;
 import java.io.*;
@@ -22,6 +25,11 @@ public class ClueApplication implements Serializable {
 
     public ClueApplication() {
         localRootPath = Paths.get(new JFileChooser().getFileSystemView().getDefaultDirectory().getAbsolutePath() + File.separator + "ClueDrive local files");
+        myDrives.add(new DropBoxDrive());
+        myDrives.add(new DropBoxDrive());
+        myDrives.add(new DropBoxDrive());
+        myDrives.add(new DropBoxDrive());
+
     }
 
     public static void main(String[] args) {
@@ -64,10 +72,26 @@ public class ClueApplication implements Serializable {
         } catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e) {
             e.printStackTrace();
         }
-        MainWindow mainWindow = MainWindow.getInstance();
-        mainWindow.setModel(application);
-        mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        MainWindow mainWindow = MainWindow.getInstance(application);
+        mainWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         mainWindow.setVisible(true);
+    }
+
+    public void addDrive(ClueDriveProvider provider) {
+        ClueDrive drive = null;
+        switch (provider) {
+            case GOOGLE:
+                //TODO: create api
+                break;
+            case ONEDRIVE:
+                //TODO: create api
+                break;
+            case DROPBOX:
+                //TODO: create api
+                break;
+        }
+        myDrives.add(drive);
+        persist();
     }
 
     public Path getLocalRootPath() {

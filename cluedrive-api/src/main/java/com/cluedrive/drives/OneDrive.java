@@ -43,6 +43,7 @@ public class OneDrive extends ClueDrive {
     private ObjectMapper MAPPER;
 
     public OneDrive() {
+        provider = ClueDriveProvider.ONEDRIVE;
         jsonHeaders = new HttpHeaders();
         MAPPER = new ObjectMapper();
         MAPPER.disable(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS);
@@ -79,7 +80,7 @@ public class OneDrive extends ClueDrive {
     }
 
     @Override
-    public void setToken(String accessToken) {
+    public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
         url = new URLUtility(URI_BASE);
         jsonHeaders.set("Authorization", "Bearer " + accessToken);

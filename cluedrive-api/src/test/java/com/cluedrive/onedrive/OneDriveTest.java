@@ -8,22 +8,14 @@ import com.cluedrive.onedrive.request.CreateFolderRequest;
 import com.cluedrive.onedrive.response.ChildrenList;
 import com.cluedrive.onedrive.response.CreateFolderResponse;
 import com.cluedrive.onedrive.response.Item;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
-import org.junit.BeforeClass;
 import org.springframework.http.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.awt.*;
 import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Properties;
 
 /**
@@ -105,11 +97,11 @@ public class OneDriveTest extends ClueDriveTest{
 
         String accessToken = properties.getProperty("microsoftOnedrive.accessToken");
         drive = new OneDrive();
-        drive.setToken(accessToken);
+        drive.setAccessToken(accessToken);
 
         url = new URLUtility(OneDrive.URI_BASE);
 
-        headers.set("Authorization", "Bearer " + drive.getToken());
+        headers.set("Authorization", "Bearer " + drive.getAccessToken());
         headers.setContentType(MediaType.APPLICATION_JSON);
     }
 
