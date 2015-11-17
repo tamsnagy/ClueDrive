@@ -20,11 +20,13 @@ public class MainWindow extends JFrame {
     private JPanel drivesPanel;
     private JPanel resourcePanel;
     private ImageIcon add;
+    private ImageIcon remove;
 
     private java.util.List<Color> colorList = Arrays.asList(Color.GREEN, Color.ORANGE, Color.MAGENTA, Color.CYAN);
 
     private MainWindow(ClueApplication model) {
         add = new ImageIcon("cluedrive-application/build/resources/main/images/add.png");
+        remove = new ImageIcon("cluedrive-application/build/resources/main/images/remove.png");
         this.model = model;
         setTitle("ClueDrive Application");
         setSize(1100, 650);
