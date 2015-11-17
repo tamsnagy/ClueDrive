@@ -1,5 +1,3 @@
-import java.nio.file.Paths
-
 dependencies {
     compile 'com.dropbox.core:dropbox-core-sdk:1.8.1'
     compile 'com.google.apis:google-api-services-drive:v2-rev186-1.20.0'
@@ -11,43 +9,41 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
 }
 
-test {
-    beforeSuite { descriptor ->
-        if(descriptor.getName() != null) {
-            if(descriptor.getName().endsWith("OneDriveTest")) {
-                def properties = new Properties();
-                def propertiesRoute = "build/resources/test/config.properties"
+processTestResources.dependsOn("getAccessToken")
 
-                file(propertiesRoute).withInputStream {
-                    properties.load(it)
-                }
+task getAccessToken {
+    def oneDriveTokenField = "microsoftOnedrive.accessToken"
+    def properties = new Properties();
+    def propertiesRoute = "src/test/resources/config.properties"
 
-                println "After agreement, copy response address here: "
+    file(propertiesRoute).withInputStream {
+        properties.load(it)
+    }
 
-                def scope = "wl.signin%20onedrive.readwrite"
-                def requestUrl = "https://login.live.com/oauth20_authorize.srf?client_id=" +
-                        properties.getProperty("microsoftOnedrive.clientId") +
-                        "&scope=" + scope +
-                        "&response_type=token&redirect_uri=https://login.live.com/oauth20_desktop.srf"
+    // In case old accessToken expired, simply delete it from config.properties, and you can get new one.
+    if(properties.getProperty(oneDriveTokenField) == null) {
 
-                java.awt.Desktop.desktop.browse requestUrl.toURI()
-                def responseUrl = System.in.newReader().readLine()
+        println "After agreement, copy response address here: "
 
-                def tokenBegin = responseUrl.indexOf("access_token=") + 13;
-                def tokenEnd = responseUrl.indexOf("&token_type");
-                def accessToken = responseUrl.substring(tokenBegin, tokenEnd);
+        def scope = "wl.signin%20onedrive.readwrite"
+        def requestUrl = "https://login.live.com/oauth20_authorize.srf?client_id=" +
+                properties.getProperty("microsoftOnedrive.clientId") +
+                "&scope=" + scope +
+                "&response_type=token&redirect_uri=https://login.live.com/oauth20_desktop.srf"
 
-                properties.setProperty("microsoftOnedrive.accessToken", accessToken.replaceAll("%2b", " "))
+        java.awt.Desktop.desktop.browse requestUrl.toURI()
+        def responseUrl = System.in.newReader().readLine()
 
-                def home = System.getProperty("user.home")
+        def tokenBegin = responseUrl.indexOf("access_token=") + 13 // length of "access_token="
+        def tokenEnd = responseUrl.indexOf("&token_type")
+        def accessToken = responseUrl.substring(tokenBegin, tokenEnd)
 
-                file(Paths.get(home + File.separator + "clueTest" + File.separator + "token.tk")).withWriter {
-                    it.println(accessToken)
-                }
+        properties.setProperty(oneDriveTokenField, accessToken.replaceAll("%2b", " "))
 
-            }
-
+        file(propertiesRoute).withWriter {
+            properties.store(it, null)
         }
     }
+
 }
 

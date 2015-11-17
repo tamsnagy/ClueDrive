@@ -90,12 +90,8 @@ public class OneDriveTest extends ClueDriveTest{
              System.out.println(e.getMessage());
              System.out.println(e.getResponseBodyAsString());
              throw new ClueException(e);
-         } catch (JsonMappingException e) {
-             e.printStackTrace();
-         } catch (JsonGenerationException e) {
-             e.printStackTrace();
          } catch (IOException e) {
-             e.printStackTrace();
+             throw new ClueException(e);
          }
          baseFolder = baseFolderCandidate;
     }
@@ -103,13 +99,11 @@ public class OneDriveTest extends ClueDriveTest{
     @Override
     protected void driveSpecificSetup() throws IOException {
         Properties properties = new Properties();
-        System.out.println(Files.exists(Paths.get("build/resources/test/config.properties")));
         try(InputStream config = new FileInputStream(Paths.get("build/resources/test/config.properties").toFile())) {
             properties.load(config);
         }
 
         String accessToken = properties.getProperty("microsoftOnedrive.accessToken");
-        System.out.println(accessToken);
         drive = new OneDrive();
         drive.setToken(accessToken);
 
