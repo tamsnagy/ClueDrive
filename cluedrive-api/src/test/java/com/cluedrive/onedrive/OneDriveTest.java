@@ -12,15 +12,17 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
+import org.junit.BeforeClass;
 import org.springframework.http.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.awt.*;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -35,16 +37,14 @@ public class OneDriveTest extends ClueDriveTest{
     private ObjectMapper MAPPER;
     private HttpHeaders headers;
 
-    //TODO: remove
-    private static boolean login = false;
-
     public OneDriveTest() {
         MAPPER = new ObjectMapper();
         MAPPER.disable(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS);
         headers = new HttpHeaders();
+        restTemplate = new RestTemplate();
     }
 
-     @Override
+    @Override
     protected void format() throws ClueException {
         CFolder baseFolderCandidate = null;
          try {
@@ -103,28 +103,13 @@ public class OneDriveTest extends ClueDriveTest{
     @Override
     protected void driveSpecificSetup() throws IOException {
         Properties properties = new Properties();
-        InputStream config = OneDriveTest.class.getClassLoader().getResourceAsStream("config.properties");
-        properties.load(config);
-        restTemplate = new RestTemplate();
-        if(login) {
-            login = false;
-            String clientId = properties.getProperty("microsoftOnedrive.clientId");
-            String scope = "wl.signin%20onedrive.readwrite";
-            try {
-                Desktop.getDesktop().browse(new URI(new StringBuilder()
-                        .append("https://login.live.com/oauth20_authorize.srf?client_id=")
-                        .append(clientId)
-                        .append("&scope=")
-                        .append(scope)
-                        .append("&response_type=token&redirect_uri=https://login.live.com/oauth20_desktop.srf")
-                        .toString()));
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-            }
+        System.out.println(Files.exists(Paths.get("build/resources/test/config.properties")));
+        try(InputStream config = new FileInputStream(Paths.get("build/resources/test/config.properties").toFile())) {
+            properties.load(config);
         }
 
-        properties.load(config);
         String accessToken = properties.getProperty("microsoftOnedrive.accessToken");
+        System.out.println(accessToken);
         drive = new OneDrive();
         drive.setToken(accessToken);
 
