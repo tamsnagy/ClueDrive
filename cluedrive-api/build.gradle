@@ -1,0 +1,53 @@
+import java.nio.file.Paths
+
+dependencies {
+    compile 'com.dropbox.core:dropbox-core-sdk:1.8.1'
+    compile 'com.google.apis:google-api-services-drive:v2-rev186-1.20.0'
+    compile 'com.google.oauth-client:google-oauth-client-jetty:1.20.0'
+    compile 'org.springframework:spring-web:4.2.1.RELEASE'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.6.2'
+    compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
+
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+}
+
+test {
+    beforeSuite { descriptor ->
+        if(descriptor.getName() != null) {
+            if(descriptor.getName().endsWith("OneDriveTest")) {
+                def properties = new Properties();
+                def propertiesRoute = "build/resources/test/config.properties"
+
+                file(propertiesRoute).withInputStream {
+                    properties.load(it)
+                }
+
+                println "After agreement, copy response address here: "
+
+                def scope = "wl.signin%20onedrive.readwrite"
+                def requestUrl = "https://login.live.com/oauth20_authorize.srf?client_id=" +
+                        properties.getProperty("microsoftOnedrive.clientId") +
+                        "&scope=" + scope +
+                        "&response_type=token&redirect_uri=https://login.live.com/oauth20_desktop.srf"
+
+                java.awt.Desktop.desktop.browse requestUrl.toURI()
+                def responseUrl = System.in.newReader().readLine()
+
+                def tokenBegin = responseUrl.indexOf("access_token=") + 13;
+                def tokenEnd = responseUrl.indexOf("&token_type");
+                def accessToken = responseUrl.substring(tokenBegin, tokenEnd);
+
+                properties.setProperty("microsoftOnedrive.accessToken", accessToken.replaceAll("%2b", " "))
+
+                def home = System.getProperty("user.home")
+
+                file(Paths.get(home + File.separator + "clueTest" + File.separator + "token.tk")).withWriter {
+                    it.println(accessToken)
+                }
+
+            }
+
+        }
+    }
+}
+
