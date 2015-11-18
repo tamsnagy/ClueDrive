@@ -17,12 +17,28 @@ import java.util.Locale;
 public class DropBoxDrive extends ClueDrive {
     private transient DbxRequestConfig config;
     private transient DbxClient client;
-    private String accessToken;
+    private transient DbxWebAuthNoRedirect webAuth;
 
     public DropBoxDrive() {
         provider = ClueDriveProvider.DROPBOX;
         config = new DbxRequestConfig("ClueDrive", Locale.getDefault().toString());
-        this.client = new DbxClient(config, /*accessToken*/"mwrh-csr5dAAAAAAAAAABjTRHX8wsvSsGzTJL1Qb_prLPUilGrCqfJiahWuYyAPY");
+        DbxAppInfo appInfo = new DbxAppInfo(PropertiesUtility.apiProperty("dropBox.appKey"), PropertiesUtility.apiProperty("dropBox.clientSecret"));
+        webAuth = new DbxWebAuthNoRedirect(config, appInfo);
+    }
+
+    @Override
+    public String startAuth() {
+        return webAuth.start();
+    }
+
+    @Override
+    public void finishAuth(String accessToken) throws ClueException {
+        try {
+            DbxAuthFinish authFinish = webAuth.finish(accessToken);
+            setAccessToken(authFinish.accessToken);
+        } catch (DbxException e) {
+            throw new ClueException(e);
+        }
     }
 
     @Override
@@ -49,6 +65,7 @@ public class DropBoxDrive extends ClueDrive {
 
     @Override
     public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
         this.client = new DbxClient(config, accessToken);
     }
 
@@ -114,5 +131,9 @@ public class DropBoxDrive extends ClueDrive {
 
     public DbxClient getClient() {
         return client;
+    }
+
+    public DbxRequestConfig getConfig() {
+        return config;
     }
 }

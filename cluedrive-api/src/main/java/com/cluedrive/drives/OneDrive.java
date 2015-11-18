@@ -34,19 +34,29 @@ import java.util.stream.Collectors;
  * Created by Tamas on 2015-10-01.
  */
 public class OneDrive extends ClueDrive {
-    private RestTemplate restTemplate = new RestTemplate();
+    private transient RestTemplate restTemplate = new RestTemplate();
     public static final String URI_BASE = "https://api.onedrive.com/v1.0/drive/special/approot";
     private static final String LIST_FILTERS = "name,size,createdDateTime,lastModifiedDateTime,folder,file";
     private static final String DOWNLOAD_URL_FIELD = "@content.downloadUrl";
-    private URLUtility url;
-    private HttpHeaders jsonHeaders;
-    private ObjectMapper MAPPER;
+    private transient URLUtility url;
+    private transient HttpHeaders jsonHeaders;
+    private transient ObjectMapper MAPPER;
 
     public OneDrive() {
         provider = ClueDriveProvider.ONEDRIVE;
         jsonHeaders = new HttpHeaders();
         MAPPER = new ObjectMapper();
         MAPPER.disable(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS);
+    }
+
+    @Override
+    public String startAuth() {
+        return null;
+    }
+
+    @Override
+    public void finishAuth(String accessToken) throws ClueException {
+
     }
 
     @Override

@@ -14,8 +14,13 @@ public abstract class ClueDrive implements Serializable {
     protected String accessToken = null;
     protected ClueDriveProvider provider;
 
+    /**
+     * Starts OAuth2 flow.
+     * @return Url, where access can be granted to application.
+     */
+    public abstract String startAuth();
+    public abstract void finishAuth(String accessToken) throws ClueException;
     public abstract List<CResource> list(CPath path) throws ClueException;
-
     public abstract CFolder createFolder(CFolder parentFolder, String folderName) throws ClueException;
     public abstract CFolder getRootFolder() throws ClueException;
     public abstract CFile uploadFile(CFolder remoteFolder, Path localPath) throws ClueException, FileNotFoundException;

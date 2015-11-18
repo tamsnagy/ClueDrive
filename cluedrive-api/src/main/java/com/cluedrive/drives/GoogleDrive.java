@@ -21,12 +21,26 @@ import java.util.*;
  * Created by Tamas on 2015-10-01.
  */
 public class GoogleDrive extends ClueDrive {
-    private Drive client;
+    private transient Drive client;
     public static final String FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
+
+    public GoogleDrive() {
+        provider = ClueDriveProvider.GOOGLE;
+    }
 
     public GoogleDrive(Drive client) {
         provider = ClueDriveProvider.GOOGLE;
         this.client = client;
+    }
+
+    @Override
+    public String startAuth() {
+        return null;
+    }
+
+    @Override
+    public void finishAuth(String accessToken) throws ClueException {
+
     }
 
     @Override

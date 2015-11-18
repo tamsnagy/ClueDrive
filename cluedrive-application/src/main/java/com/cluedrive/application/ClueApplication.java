@@ -4,9 +4,13 @@ import com.cluedrive.commons.ClueDrive;
 import com.cluedrive.commons.ClueDriveProvider;
 import com.cluedrive.drives.DropBoxDrive;
 import com.cluedrive.drives.GoogleDrive;
+import com.cluedrive.drives.OneDrive;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,14 +26,11 @@ public class ClueApplication implements Serializable {
     private transient Path localRootPath;
     private String localRootPathAsString;
     private List<ClueDrive> myDrives = new ArrayList<>();
+    private transient ClueDrive tmpDrive = null;
+    private static MainWindow mainWindow;
 
     public ClueApplication() {
         localRootPath = Paths.get(new JFileChooser().getFileSystemView().getDefaultDirectory().getAbsolutePath() + File.separator + "ClueDrive local files");
-        myDrives.add(new DropBoxDrive());
-        myDrives.add(new DropBoxDrive());
-        myDrives.add(new DropBoxDrive());
-        myDrives.add(new DropBoxDrive());
-
     }
 
     public static void main(String[] args) {
@@ -72,25 +73,38 @@ public class ClueApplication implements Serializable {
         } catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e) {
             e.printStackTrace();
         }
-        MainWindow mainWindow = MainWindow.getInstance(application);
+        mainWindow = MainWindow.getInstance(application);
         mainWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         mainWindow.setVisible(true);
     }
 
     public void addDrive(ClueDriveProvider provider) {
-        ClueDrive drive = null;
         switch (provider) {
             case GOOGLE:
-                //TODO: create api
+                tmpDrive = new GoogleDrive();
                 break;
             case ONEDRIVE:
-                //TODO: create api
+                tmpDrive = new OneDrive();
                 break;
             case DROPBOX:
-                //TODO: create api
+                tmpDrive = new DropBoxDrive();
                 break;
         }
-        myDrives.add(drive);
+        String urlString = tmpDrive.startAuth();
+        try {
+            Desktop.getDesktop().browse(new URI(urlString));
+        } catch (IOException | URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addAccessTokenToTmpDrive(String accessToken) {
+        tmpDrive.setAccessToken(accessToken);
+        myDrives.add(tmpDrive);
+
+        //TODO: check if token is real
+        mainWindow.refreshDrivePane();
+
         persist();
     }
 

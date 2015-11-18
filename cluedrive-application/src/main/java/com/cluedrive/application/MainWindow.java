@@ -1,10 +1,13 @@
 package com.cluedrive.application;
 
 import com.cluedrive.commons.ClueDrive;
+import com.cluedrive.commons.PropertiesUtility;
 
 import javax.swing.*;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,6 +24,7 @@ public class MainWindow extends JFrame {
     private JPanel resourcePanel;
     private ImageIcon add;
     private ImageIcon remove;
+    private JSplitPane splitPane;
 
     private java.util.List<Color> colorList = Arrays.asList(Color.GREEN, Color.ORANGE, Color.MAGENTA, Color.CYAN);
 
@@ -34,7 +38,7 @@ public class MainWindow extends JFrame {
 
         setJMenuBar(initializedMenuBar());
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, initializeDrivePane(), initializeResourcePane());
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, initializeDrivePane(), initializeResourcePane());
         this.add(splitPane);
     }
 
@@ -54,6 +58,12 @@ public class MainWindow extends JFrame {
         panel.add(label);
         panel.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
         panel.setAlignmentX(LEFT_ALIGNMENT);
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                startAddNewDrive();
+            }
+        });
         drivesPanel.add(panel);
 
         int color = 0;
@@ -94,7 +104,7 @@ public class MainWindow extends JFrame {
         JMenu fileMenu = new JMenu("File");
         JMenuItem menuItem = new JMenuItem("Add Drive");
         menuItem.addActionListener(actionEvent -> {
-            registerNewDrive();
+            startAddNewDrive();
         });
         fileMenu.add(menuItem);
 
@@ -128,7 +138,7 @@ public class MainWindow extends JFrame {
 
         menuItem = new JMenuItem("GitHUB");
         menuItem.addActionListener(actionEvent -> {
-                    String gitHUB = PropertiesUtility.readProperty("gitHUB");
+                    String gitHUB = PropertiesUtility.applicationProperty("gitHUB");
             try {
                 java.awt.Desktop.getDesktop().browse(
                         new URI(gitHUB));
@@ -148,8 +158,8 @@ public class MainWindow extends JFrame {
         return menuBar;
     }
 
-    private void registerNewDrive() {
-        //TODO: create new window for this
+    private void startAddNewDrive() {
+        DriveChooserFrame frame = new DriveChooserFrame(instance);
     }
 
     public static MainWindow getInstance(ClueApplication model) {
@@ -157,5 +167,14 @@ public class MainWindow extends JFrame {
             instance = new MainWindow(model);
         }
         return instance;
+    }
+
+
+    public ClueApplication getModel() {
+        return model;
+    }
+
+    public void refreshDrivePane() {
+        splitPane.setLeftComponent(initializeDrivePane());
     }
 }
