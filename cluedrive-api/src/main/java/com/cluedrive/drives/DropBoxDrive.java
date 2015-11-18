@@ -42,6 +42,14 @@ public class DropBoxDrive extends ClueDrive {
     }
 
     @Override
+    public void initialize() {
+        config = new DbxRequestConfig("ClueDrive", Locale.getDefault().toString());
+        DbxAppInfo appInfo = new DbxAppInfo(PropertiesUtility.apiProperty("dropBox.appKey"), PropertiesUtility.apiProperty("dropBox.clientSecret"));
+        webAuth = new DbxWebAuthNoRedirect(config, appInfo);
+        client = new DbxClient(config, accessToken);
+    }
+
+    @Override
     public List<CResource> list(CPath path) throws ClueException {
         try {
             List<CResource> entries = new ArrayList<>();

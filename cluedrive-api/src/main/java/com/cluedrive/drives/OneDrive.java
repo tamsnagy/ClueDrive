@@ -21,20 +21,18 @@ import org.springframework.web.client.RestTemplate;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * Created by Tamas on 2015-10-01.
  */
 public class OneDrive extends ClueDrive {
-    private transient RestTemplate restTemplate = new RestTemplate();
+    private transient RestTemplate restTemplate;
     public static final String URI_BASE = "https://api.onedrive.com/v1.0/drive/special/approot";
     private static final String LIST_FILTERS = "name,size,createdDateTime,lastModifiedDateTime,folder,file";
     private static final String DOWNLOAD_URL_FIELD = "@content.downloadUrl";
@@ -44,19 +42,28 @@ public class OneDrive extends ClueDrive {
 
     public OneDrive() {
         provider = ClueDriveProvider.ONEDRIVE;
-        jsonHeaders = new HttpHeaders();
-        MAPPER = new ObjectMapper();
-        MAPPER.disable(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS);
+        initialize();
     }
 
     @Override
     public String startAuth() {
-        return null;
+        String scope = "wl.signin%20onedrive.readwrite";
+        return "https://login.live.com/oauth20_authorize.srf?client_id=" +
+                PropertiesUtility.apiProperty("microsoftOnedrive.clientId") +
+                "&scope=" + scope +
+                "&response_type=token&redirect_uri=https://login.live.com/oauth20_desktop.srf";
+
     }
 
     @Override
-    public void finishAuth(String accessToken) throws ClueException {
-
+    public void initialize() {
+        restTemplate = new RestTemplate();
+        jsonHeaders = new HttpHeaders();
+        jsonHeaders.set("Authorization", "Bearer " + accessToken);
+        jsonHeaders.setContentType(MediaType.APPLICATION_JSON);
+        MAPPER = new ObjectMapper();
+        MAPPER.disable(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS);
+        url = new URLUtility(OneDrive.URI_BASE);
     }
 
     @Override

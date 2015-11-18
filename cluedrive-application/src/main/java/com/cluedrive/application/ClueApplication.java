@@ -51,6 +51,8 @@ public class ClueApplication implements Serializable {
                 if( ! Files.exists(application.localRootPath)) {
                     Files.createDirectories(application.localRootPath);
                 }
+                // Create previously registered drives;
+                application.myDrives.forEach(com.cluedrive.commons.ClueDrive::initialize);
                 createAndShowGUI(application);
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
@@ -78,7 +80,7 @@ public class ClueApplication implements Serializable {
         mainWindow.setVisible(true);
     }
 
-    public void addDrive(ClueDriveProvider provider) {
+    public void addDriveCandidate(ClueDriveProvider provider) {
         switch (provider) {
             case GOOGLE:
                 tmpDrive = new GoogleDrive();
@@ -91,10 +93,12 @@ public class ClueApplication implements Serializable {
                 break;
         }
         String urlString = tmpDrive.startAuth();
-        try {
-            Desktop.getDesktop().browse(new URI(urlString));
-        } catch (IOException | URISyntaxException e) {
-            e.printStackTrace();
+        if(urlString != null) {
+            try {
+                Desktop.getDesktop().browse(new URI(urlString));
+            } catch (IOException | URISyntaxException e) {
+                e.printStackTrace();
+            }
         }
     }
 

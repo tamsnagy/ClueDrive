@@ -3,24 +3,36 @@ package com.cluedrive.drives;
 import com.cluedrive.commons.*;
 import com.cluedrive.exception.ClueException;
 import com.cluedrive.exception.NotExistingPathException;
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.FileContent;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpResponse;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.*;
+import com.google.api.services.drive.model.File;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.swing.*;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
 import java.util.*;
 
 /**
  * Created by Tamas on 2015-10-01.
  */
 public class GoogleDrive extends ClueDrive {
+    private static final Path setupOrigin = Paths.get(new JFileChooser().getFileSystemView().getDefaultDirectory().getParentFile().getAbsolutePath() + java.io.File.separator + "ClueDrive" + java.io.File.separator + "credentials");
     private transient Drive client;
     public static final String FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
 
@@ -35,12 +47,34 @@ public class GoogleDrive extends ClueDrive {
 
     @Override
     public String startAuth() {
+        try{
+            // Load client secrets.
+            InputStream in = this.getClass().getResourceAsStream("/google_client_secret.json");
+            JacksonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+            GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(jsonFactory, new InputStreamReader(in));
+
+            // Build flow and trigger user authorization request.
+            GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                    httpTransport, jsonFactory, clientSecrets, Arrays.asList(DriveScopes.DRIVE))
+                        .setDataStoreFactory(new FileDataStoreFactory(setupOrigin.toFile()))
+                        .setAccessType("offline")
+                        .build();
+
+            Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+            client = new Drive.Builder(
+                    httpTransport, jsonFactory, credential)
+                    .setApplicationName("ClueDrive")
+                    .build();
+        } catch (GeneralSecurityException | IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
     @Override
-    public void finishAuth(String accessToken) throws ClueException {
-
+    public void initialize() {
+        startAuth();
     }
 
     @Override

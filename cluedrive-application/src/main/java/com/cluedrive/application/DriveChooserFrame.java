@@ -15,8 +15,11 @@ public class DriveChooserFrame extends JDialog {
     private MainWindow mainFrame;
     private ClueDriveProvider selectedProvider = null;
     private java.util.List<JLabel> providerLabels = new ArrayList<>();
+    private JLabel tokenLabel;
     private static final String SELECTOR_PANEL = "SelectorPanel";
     private static final String TOKEN_PANEL = "TokenPanel";
+    private static final String DROPBOX_TOKEN_TEXT = "<html><center>Insert here the token you got<br/> from DropBox:</center></html>";
+    private static final String ONEDRIVE_TOKEN_TEXT = "<html><center>Insert here the response url <br/> from your browsers addressBar:</center></html>";
 
     public DriveChooserFrame(MainWindow mainFrame) {
         super(mainFrame, true);
@@ -38,10 +41,10 @@ public class DriveChooserFrame extends JDialog {
         card.setLayout(new BoxLayout(card, BoxLayout.PAGE_AXIS));
         card.add(Box.createRigidArea(new Dimension(30, 70)));
 
-        JLabel label = new JLabel("<html><center>Insert here the token you got<br/> from your cloud provider:</center></html>");
-        label.setAlignmentX(CENTER_ALIGNMENT);
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-        card.add(label);
+        tokenLabel = new JLabel();
+        tokenLabel.setAlignmentX(CENTER_ALIGNMENT);
+        tokenLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        card.add(tokenLabel);
 
         card.add(Box.createVerticalGlue());
 
@@ -60,7 +63,12 @@ public class DriveChooserFrame extends JDialog {
                         "Missing token", JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            mainFrame.getModel().addAccessTokenToTmpDrive(tokenTextField.getText());
+            if(ClueDriveProvider.ONEDRIVE.equals(selectedProvider)) {
+                int tokenBegin = token.indexOf("access_token=") + "access_token=".length();
+                int tokenEnd = token.indexOf("&token_type");
+                token = token.substring(tokenBegin, tokenEnd).replace("%2b", " ");
+            }
+            mainFrame.getModel().addAccessTokenToTmpDrive(token);
             dispose();
         });
         button.setAlignmentX(CENTER_ALIGNMENT);
@@ -106,7 +114,19 @@ public class DriveChooserFrame extends JDialog {
                 JOptionPane.showMessageDialog(this, "Please select a provider by clicking on their icon.",
                         "Select Cloud provider", JOptionPane.WARNING_MESSAGE);
             } else {
-                mainFrame.getModel().addDrive(selectedProvider);
+                mainFrame.getModel().addDriveCandidate(selectedProvider);
+                switch(selectedProvider){
+                    case DROPBOX:
+                        tokenLabel.setText(DROPBOX_TOKEN_TEXT);
+                        break;
+                    case ONEDRIVE:
+                        tokenLabel.setText(ONEDRIVE_TOKEN_TEXT);
+                        break;
+                    case GOOGLE:
+                        mainFrame.getModel().addAccessTokenToTmpDrive(null);
+                        dispose();
+                        return;
+                }
                 ((CardLayout)this.getContentPane().getLayout()).show(this.getContentPane(), TOKEN_PANEL);
             }
         });
