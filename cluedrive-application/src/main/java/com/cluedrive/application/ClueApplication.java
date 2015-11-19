@@ -32,12 +32,18 @@ public class ClueApplication implements Serializable {
     private List<ClueDrive> myDrives = new ArrayList<>();
     private transient ClueDrive tmpDrive = null;
     private static MainWindow mainWindow;
-    private CPath currentPath;
+    public static CPath currentPath;
+    public static ClueDrive currentHolder;
 
     public ClueApplication() {
         localRootPath = Paths.get(new JFileChooser().getFileSystemView().getDefaultDirectory().getAbsolutePath() + File.separator + "ClueDrive local files");
+        initialize();
+
+    }
+    private void initialize() {
         try {
             currentPath = CPath.create("/");
+            currentHolder = null;
         } catch (IllegalPathException e) {
             e.printStackTrace();
         }
@@ -61,6 +67,7 @@ public class ClueApplication implements Serializable {
                 if( ! Files.exists(application.localRootPath)) {
                     Files.createDirectories(application.localRootPath);
                 }
+                application.initialize();
                 // Create previously registered drives;
                 application.myDrives.forEach(com.cluedrive.commons.ClueDrive::initialize);
                 createAndShowGUI(application);
@@ -166,11 +173,8 @@ public class ClueApplication implements Serializable {
         this.localRootPathAsString = localRootPathAsString;
     }
 
-    public CPath getCurrentPath() {
-        return currentPath;
-    }
-
-    public void setCurrentPath(CPath currentPath) {
-        this.currentPath = currentPath;
+    public static void refreshMainPanel() {
+        mainWindow.refreshAddressPane();
+        mainWindow.refreshResourcePane();
     }
 }

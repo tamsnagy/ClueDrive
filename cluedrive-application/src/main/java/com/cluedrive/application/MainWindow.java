@@ -34,6 +34,8 @@ public class MainWindow extends JFrame {
     private ImageIcon iconFolder;
     private ImageIcon iconFile;
     private ImageIcon iconLoad;
+    private ImageIcon iconBack;
+    private ImageIcon iconNewFolder;
     private JSplitPane splitPane;
 
     private java.util.List<Color> colorList = Arrays.asList(Color.GREEN, Color.ORANGE, Color.MAGENTA, Color.CYAN);
@@ -44,6 +46,8 @@ public class MainWindow extends JFrame {
         iconFolder = new ImageIcon("cluedrive-application/build/resources/main/images/folder.png");
         iconFile = new ImageIcon("cluedrive-application/build/resources/main/images/file.png");
         iconLoad = new ImageIcon("cluedrive-application/build/resources/main/images/load.gif");
+        iconBack = new ImageIcon("cluedrive-application/build/resources/main/images/back.png");
+        iconNewFolder = new ImageIcon("cluedrive-application/build/resources/main/images/new_folder.png");
         CResourceUI.iconFile = iconFile;
         CResourceUI.iconFolder = iconFolder;
         this.model = model;
@@ -126,7 +130,36 @@ public class MainWindow extends JFrame {
 
         addressPanel.add(Box.createRigidArea(new Dimension(20,20)));
 
-        JLabel label = new JLabel(iconAdd);
+        JLabel label = new JLabel(iconBack);
+        label.setAlignmentY(CENTER_ALIGNMENT);
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                model.currentPath = model.currentPath.getParent();
+                if(model.currentPath.isRootPath()) {
+                    model.currentHolder = null;
+                }
+                refreshAddressPane();
+                refreshResourcePane();
+            }
+        });
+        addressPanel.add(label);
+
+        addressPanel.add(Box.createRigidArea(new Dimension(10,10)));
+
+        label = new JLabel(iconNewFolder);
+        label.setAlignmentY(CENTER_ALIGNMENT);
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                //TODO: iconAdd file
+            }
+        });
+        addressPanel.add(label);
+
+        addressPanel.add(Box.createRigidArea(new Dimension(10,10)));
+
+        label = new JLabel(iconAdd);
         label.setAlignmentY(CENTER_ALIGNMENT);
         label.addMouseListener(new MouseAdapter() {
             @Override
@@ -158,7 +191,7 @@ public class MainWindow extends JFrame {
 
         addressPanel.add(Box.createRigidArea(new Dimension(10, 10)));
 
-        label = new JLabel(model.getCurrentPath().toString());
+        label = new JLabel(model.currentPath.toString());
         label.setAlignmentY(CENTER_ALIGNMENT);
         addressPanel.add(label);
 
@@ -173,7 +206,20 @@ public class MainWindow extends JFrame {
         SwingWorker worker = new SwingWorker<Void, CResourceUI>() {
             @Override
             protected Void doInBackground() throws Exception {
-                publish(model.listAllResources().stream().map(CResourceUI::new).toArray(CResourceUI[]::new));
+                if(model.currentHolder == null) {
+                    model.getMyDrives().forEach(drive -> {
+                        try {
+                            publish(drive.list(model.currentPath).stream().map(resource -> new CResourceUI(resource, drive))
+                                            .toArray(CResourceUI[]::new)
+                            );
+                        } catch (ClueException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                } else {
+                    publish(model.currentHolder.list(model.currentPath).stream().map(resource -> new CResourceUI(resource, model.currentHolder))
+                            .toArray(CResourceUI[]::new));
+                }
                 return null;
             }
 

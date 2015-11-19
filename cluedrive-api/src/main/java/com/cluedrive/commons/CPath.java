@@ -36,7 +36,7 @@ public class CPath implements Serializable{
     }
 
     public CPath getParent(){
-        if(isRootPath())
+        if(absolutePath.indexOf('/') == absolutePath.lastIndexOf('/'))
             return new CPath("/");
         return new CPath(absolutePath.substring(0, absolutePath.lastIndexOf('/')));
     }
