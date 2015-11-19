@@ -1,12 +1,19 @@
 package com.cluedrive.application;
 
+import com.cluedrive.commons.CFile;
 import com.cluedrive.commons.CResource;
 import com.cluedrive.commons.ClueDrive;
+import com.cluedrive.exception.ClueException;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Created by Tamas on 2015-11-19.
@@ -48,7 +55,28 @@ public class CResourceUI extends JPanel {
                         ClueApplication.currentPath = resource.getRemotePath();
                         ClueApplication.refreshMainPanel();
                     } else {
-                        //TODO: download and open;
+                        if(JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(e.getComponent().getParent(),
+                                "Do you want to save file for offline access and open?",
+                                "Save file",
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE)) {
+                            new SwingWorker<Void, Void>() {
+                                @Override
+                                protected Void doInBackground() throws Exception {
+                                    try {
+                                        Path localPath = Paths.get(ClueApplication.getLocalRootPath().toString() + File.separator + resource.getRemotePath().toString().substring(1));
+                                        Files.createDirectories(localPath.getParent());
+                                        holder.downloadFile((CFile) resource, localPath);
+                                        Desktop.getDesktop().open(localPath.toFile());
+                                    } catch (ClueException e1) {
+                                        e1.printStackTrace();
+                                    } catch (IOException e1) {
+                                        e1.printStackTrace();
+                                    }
+                                    return null;
+                                }
+                            }.execute();
+                        }
                     }
                 }
             }

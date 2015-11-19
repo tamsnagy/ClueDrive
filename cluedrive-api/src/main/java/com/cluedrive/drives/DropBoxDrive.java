@@ -26,6 +26,12 @@ public class DropBoxDrive extends ClueDrive {
         webAuth = new DbxWebAuthNoRedirect(config, appInfo);
     }
 
+    public DropBoxDrive(boolean test) {
+        provider = ClueDriveProvider.DROPBOX;
+        config = new DbxRequestConfig("ClueDrive", Locale.getDefault().toString());
+        DbxAppInfo appInfo = new DbxAppInfo(PropertiesUtility.apiProperty("dropBox.appKey"), PropertiesUtility.apiProperty("dropBox.clientSecret"));
+    }
+
     @Override
     public String startAuth() {
         return webAuth.start();
