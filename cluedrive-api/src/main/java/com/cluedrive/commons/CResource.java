@@ -19,6 +19,9 @@ public abstract class CResource {
         this.id = id;
     }
 
+    public abstract boolean isFolder();
+    public abstract boolean isFile();
+
     public CPath getRemotePath() {
         return remotePath;
     }

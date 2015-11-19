@@ -14,6 +14,16 @@ public class CFolder extends CResource {
     }
 
     @Override
+    public boolean isFolder() {
+        return true;
+    }
+
+    @Override
+    public boolean isFile() {
+        return false;
+    }
+
+    @Override
     public String toString() {
         return "CFolder{remotePath=" + super.toString() + "} ";
     }

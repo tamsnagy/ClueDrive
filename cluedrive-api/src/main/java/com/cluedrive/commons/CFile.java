@@ -22,6 +22,16 @@ public class CFile extends CResource{
     }
 
     @Override
+    public boolean isFolder() {
+        return false;
+    }
+
+    @Override
+    public boolean isFile() {
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "CFile{" +
                 "fileSize=" + fileSize +

@@ -1,7 +1,9 @@
 package com.cluedrive.application;
 
+import com.cluedrive.commons.CResource;
 import com.cluedrive.commons.ClueDrive;
 import com.cluedrive.commons.PropertiesUtility;
+import com.cluedrive.exception.ClueException;
 
 import javax.swing.*;
 
@@ -11,7 +13,10 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
+import java.util.*;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 /**
  * Created by Tamas on 2015-11-16.
@@ -21,16 +26,26 @@ public class MainWindow extends JFrame {
     private ClueApplication model;
 
     private JPanel drivesPanel;
+    private JPanel mainPanel;
     private JPanel resourcePanel;
-    private ImageIcon add;
-    private ImageIcon remove;
+    private JPanel addressPanel;
+    private ImageIcon iconAdd;
+    private ImageIcon iconRemove;
+    private ImageIcon iconFolder;
+    private ImageIcon iconFile;
+    private ImageIcon iconLoad;
     private JSplitPane splitPane;
 
     private java.util.List<Color> colorList = Arrays.asList(Color.GREEN, Color.ORANGE, Color.MAGENTA, Color.CYAN);
 
     private MainWindow(ClueApplication model) {
-        add = new ImageIcon("cluedrive-application/build/resources/main/images/add.png");
-        remove = new ImageIcon("cluedrive-application/build/resources/main/images/remove.png");
+        iconAdd = new ImageIcon("cluedrive-application/build/resources/main/images/add.png");
+        iconRemove = new ImageIcon("cluedrive-application/build/resources/main/images/remove.png");
+        iconFolder = new ImageIcon("cluedrive-application/build/resources/main/images/folder.png");
+        iconFile = new ImageIcon("cluedrive-application/build/resources/main/images/file.png");
+        iconLoad = new ImageIcon("cluedrive-application/build/resources/main/images/load.gif");
+        CResourceUI.iconFile = iconFile;
+        CResourceUI.iconFolder = iconFolder;
         this.model = model;
         setTitle("ClueDrive Application");
         setSize(1100, 650);
@@ -38,7 +53,7 @@ public class MainWindow extends JFrame {
 
         setJMenuBar(initializedMenuBar());
 
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, initializeDrivePane(), initializeResourcePane());
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, initializeDrivePane(), initializeMainPanel());
         this.add(splitPane);
     }
 
@@ -51,7 +66,7 @@ public class MainWindow extends JFrame {
         panel.setLayout(new BoxLayout(panel ,BoxLayout.LINE_AXIS));
         panel.add(Box.createRigidArea(new Dimension(5, 40)));
         JLabel iconLabel = new JLabel();
-        iconLabel.setIcon(add);
+        iconLabel.setIcon(iconAdd);
         panel.add(iconLabel);
         JLabel label = new JLabel("Add new Drive for more space");
         label.setHorizontalTextPosition(SwingConstants.LEADING);
@@ -91,21 +106,113 @@ public class MainWindow extends JFrame {
         return scrollPane;
     }
 
+    private JPanel initializeMainPanel() {
+        mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
+
+        initializeAddressPanel();
+        JScrollPane scrollResourcePane = initializeResourcePane();
+
+        mainPanel.add(addressPanel);
+        mainPanel.add(scrollResourcePane);
+
+        return mainPanel;
+    }
+
+    private void initializeAddressPanel() {
+        addressPanel = new JPanel();
+        addressPanel.setAlignmentY(LEFT_ALIGNMENT);
+        addressPanel.setLayout(new BoxLayout(addressPanel, BoxLayout.LINE_AXIS));
+
+        addressPanel.add(Box.createRigidArea(new Dimension(20,20)));
+
+        JLabel label = new JLabel(iconAdd);
+        label.setAlignmentY(CENTER_ALIGNMENT);
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                //TODO: iconAdd file
+            }
+        });
+        addressPanel.add(label);
+
+        addressPanel.add(Box.createRigidArea(new Dimension(10,10)));
+
+        label = new JLabel(iconRemove);
+        label.setAlignmentY(CENTER_ALIGNMENT);
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                //TODO: iconRemove
+            }
+        });
+        addressPanel.add(label);
+
+        addressPanel.add(Box.createRigidArea(new Dimension(10, 10)));
+
+        label = new JLabel(" " + model.getLocalRootPath().toString() + "  ");
+        label.setAlignmentY(CENTER_ALIGNMENT);
+        label.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1, true));
+        label.setToolTipText("Offline files root directory on your computer");
+        addressPanel.add(label);
+
+        addressPanel.add(Box.createRigidArea(new Dimension(10, 10)));
+
+        label = new JLabel(model.getCurrentPath().toString());
+        label.setAlignmentY(CENTER_ALIGNMENT);
+        addressPanel.add(label);
+
+        addressPanel.add(Box.createHorizontalGlue());
+    }
+
     private JScrollPane initializeResourcePane() {
         resourcePanel = new JPanel();
         resourcePanel.setBackground(Color.WHITE);
-        JScrollPane scrollPane = new JScrollPane(resourcePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        resourcePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        resourcePanel.setPreferredSize(new Dimension(480, 380));
+        SwingWorker worker = new SwingWorker<Void, CResourceUI>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                publish(model.listAllResources().stream().map(CResourceUI::new).toArray(CResourceUI[]::new));
+                return null;
+            }
+
+            @Override
+            protected void process(final List<CResourceUI> chunks) {
+                chunks.forEach(resourcePanel::add);
+                mainPanel = new JPanel();
+                mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
+
+                initializeAddressPanel();
+
+                mainPanel.add(addressPanel);
+                JScrollPane scrollPane = new JScrollPane(resourcePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                scrollPane.setMinimumSize(new Dimension(500, 400));
+                mainPanel.add(scrollPane);
+                splitPane.setRightComponent(mainPanel);
+            }
+        };
+        JPanel loadPanel = new JPanel();
+        loadPanel.setPreferredSize(new Dimension(480, 380));
+        loadPanel.setVisible(true);
+        loadPanel.setLayout(new BorderLayout());
+        JLabel label = new JLabel(iconLoad);
+        loadPanel.add(label, BorderLayout.CENTER);
+
+        JScrollPane scrollPane = new JScrollPane(loadPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setMinimumSize(new Dimension(500, 400));
+        worker.execute();
         return scrollPane;
+
     }
 
     private JMenuBar initializedMenuBar() {
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
         JMenuItem menuItem = new JMenuItem("Add Drive");
-        menuItem.addActionListener(actionEvent -> {
-            startAddNewDrive();
-        });
+        menuItem.addActionListener(actionEvent ->
+            startAddNewDrive()
+        );
         fileMenu.add(menuItem);
 
         menuItem = new JMenuItem("DriveSettings");
@@ -121,7 +228,16 @@ public class MainWindow extends JFrame {
             if(JFileChooser.APPROVE_OPTION == fileChooser.showDialog(this, "Set as local home directory")) {
                 //TODO: maybe copy all files from there to new place
                 model.setLocalRootPath(fileChooser.getSelectedFile().toPath());
+                refreshAddressPane();
             }
+        });
+        fileMenu.add(menuItem);
+
+        menuItem = new JMenuItem("Refresh");
+        menuItem.addActionListener(actionEvent -> {
+            refreshDrivePane();
+            refreshAddressPane();
+            refreshResourcePane();
         });
         fileMenu.add(menuItem);
 
@@ -176,5 +292,21 @@ public class MainWindow extends JFrame {
 
     public void refreshDrivePane() {
         splitPane.setLeftComponent(initializeDrivePane());
+    }
+
+    public void refreshResourcePane() {
+        splitPane.setRightComponent(initializeMainPanel());
+    }
+
+    public void refreshAddressPane() {
+        mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
+
+        initializeAddressPanel();
+
+        mainPanel.add(addressPanel);
+        JScrollPane scrollPane = new JScrollPane(resourcePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setMinimumSize(new Dimension(500, 400));
+        mainPanel.add(scrollPane);
     }
 }

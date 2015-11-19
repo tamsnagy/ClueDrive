@@ -2,10 +2,12 @@ package com.cluedrive.commons;
 
 import com.cluedrive.exception.IllegalPathException;
 
+import java.io.Serializable;
+
 /**
  * Created by Tamas on 2015-09-30.
  */
-public class CPath {
+public class CPath implements Serializable{
     private String absolutePath;
 
     private CPath(String absolutePath){

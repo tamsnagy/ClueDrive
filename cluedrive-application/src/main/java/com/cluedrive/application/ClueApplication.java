@@ -1,10 +1,14 @@
 package com.cluedrive.application;
 
+import com.cluedrive.commons.CPath;
+import com.cluedrive.commons.CResource;
 import com.cluedrive.commons.ClueDrive;
 import com.cluedrive.commons.ClueDriveProvider;
 import com.cluedrive.drives.DropBoxDrive;
 import com.cluedrive.drives.GoogleDrive;
 import com.cluedrive.drives.OneDrive;
+import com.cluedrive.exception.ClueException;
+import com.cluedrive.exception.IllegalPathException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,9 +32,15 @@ public class ClueApplication implements Serializable {
     private List<ClueDrive> myDrives = new ArrayList<>();
     private transient ClueDrive tmpDrive = null;
     private static MainWindow mainWindow;
+    private CPath currentPath;
 
     public ClueApplication() {
         localRootPath = Paths.get(new JFileChooser().getFileSystemView().getDefaultDirectory().getAbsolutePath() + File.separator + "ClueDrive local files");
+        try {
+            currentPath = CPath.create("/");
+        } catch (IllegalPathException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
@@ -80,6 +90,18 @@ public class ClueApplication implements Serializable {
         mainWindow.setVisible(true);
     }
 
+    public List<CResource> listAllResources(){
+        List<CResource> resources = new ArrayList<>();
+        for(ClueDrive drive : myDrives) {
+            try {
+                resources.addAll(drive.list(currentPath));
+            } catch (ClueException e) {
+                e.printStackTrace();
+            }
+        }
+        return resources;
+    }
+
     public void addDriveCandidate(ClueDriveProvider provider) {
         switch (provider) {
             case GOOGLE:
@@ -108,6 +130,7 @@ public class ClueApplication implements Serializable {
 
         //TODO: check if token is real
         mainWindow.refreshDrivePane();
+        mainWindow.refreshResourcePane();
 
         persist();
     }
@@ -143,5 +166,11 @@ public class ClueApplication implements Serializable {
         this.localRootPathAsString = localRootPathAsString;
     }
 
+    public CPath getCurrentPath() {
+        return currentPath;
+    }
 
+    public void setCurrentPath(CPath currentPath) {
+        this.currentPath = currentPath;
+    }
 }
