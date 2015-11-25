@@ -78,6 +78,16 @@ public class GoogleDrive extends ClueDrive {
     }
 
     @Override
+    public CAccountInfo getAccountInfo() throws ClueException {
+        try {
+            About about = client.about().get().execute();
+            return new CAccountInfo(about.getUser().getDisplayName(), about.getQuotaBytesTotal());
+        } catch (IOException e) {
+            throw new ClueException(e);
+        }
+    }
+
+    @Override
     public List<CResource> list(CPath path) throws ClueException {
         List<CResource> responseList = new ArrayList<>();
         try {

@@ -13,8 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 /**
@@ -49,6 +48,14 @@ public abstract class ClueDriveTest {
     }
 
     @Test
+    public void testGetAccountInfo() throws ClueException {
+        CAccountInfo accountInfo = drive.getAccountInfo();
+        assertNotNull(accountInfo);
+        assertNotNull(accountInfo.getName());
+        assertNotEquals(0, accountInfo.getTotal());
+    }
+
+    @Test
     public void testList() throws ClueException {
         listSetup();
         //Test listing.
@@ -67,11 +74,22 @@ public abstract class ClueDriveTest {
     }
 
     @Test
-    public void testDelete() throws ClueException {
+    public void testDeleteFolder() throws ClueException {
         CFolder cFolder = drive.createFolder(baseFolder, "delete");
         assertEquals(1, drive.list(baseFolder.getRemotePath()).size());
         drive.delete(cFolder);
         assertEquals(0, drive.list(baseFolder.getRemotePath()).size());
+    }
+
+    @Test
+    public void testDeleteFile() throws ClueException, FileNotFoundException {
+        CFolder cFolder = drive.createFolder(baseFolder, "upload");
+        Path uploadThis = Paths.get("build/resources/test/test.txt");
+        CFile cFile = drive.uploadFile(cFolder, uploadThis);
+        assertEquals(uploadThis, cFile.getLocalPath());
+        assertEquals("/" + BASE_FOLDER_NAME + "/upload/test.txt", cFile.getRemotePath().toString());
+        drive.delete(cFile);
+        assertEquals(0, drive.list(cFolder.getRemotePath()).size());
     }
 
     @Test

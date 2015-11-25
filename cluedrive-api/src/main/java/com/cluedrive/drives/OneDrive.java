@@ -3,10 +3,12 @@ package com.cluedrive.drives;
 import com.cluedrive.commons.*;
 import com.cluedrive.exception.ClueException;
 import com.cluedrive.exception.InternalErrorException;
+import com.cluedrive.exception.UnAuthorizedException;
 import com.cluedrive.onedrive.request.CreateFileRequest;
 import com.cluedrive.onedrive.request.CreateFolderRequest;
 import com.cluedrive.onedrive.response.ChildrenList;
 import com.cluedrive.onedrive.response.CreateFolderResponse;
+import com.cluedrive.onedrive.response.DriveMetadata;
 import com.cluedrive.onedrive.response.Item;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
@@ -16,6 +18,9 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.*;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
@@ -75,33 +80,53 @@ public class OneDrive extends ClueDrive {
     }
 
     @Override
-    public List<CResource> list(CPath path) throws ClueException {
-
-        ResponseEntity<ChildrenList> response;
-        HttpEntity entity = new HttpEntity(jsonHeaders);
-        if(path.isRootPath()) {
-            response = restTemplate.exchange(
-                    url.base().route("children").filter(LIST_FILTERS).toString(),
+    public CAccountInfo getAccountInfo() throws ClueException {
+        try {
+            HttpEntity entity = new HttpEntity(jsonHeaders);
+            ResponseEntity<DriveMetadata> response = restTemplate.exchange(
+                    "https://api.onedrive.com/v1.0/drive",
                     HttpMethod.GET,
                     entity,
-                    ChildrenList.class
+                    DriveMetadata.class
             );
-        } else {
-            response = restTemplate.exchange(
-                    url.base().segment(path).route("children").filter(LIST_FILTERS).toString(),
-                    HttpMethod.GET,
-                    entity,
-                    ChildrenList.class
-            );
+            return new CAccountInfo(response.getBody().getOwner().getUser().getDisplayName(),
+                    response.getBody().getQuota().getTotal());
+        } catch (HttpClientErrorException e) {
+            throw new UnAuthorizedException(e.getMessage());
         }
-        return response.getBody().getValue().stream().map(item -> {
-            CPath resourcePath = CPath.create(path, item.getName());
-            if(item.getFile() != null) {
-                return new CFile(resourcePath, item.getSize(), item.getLastModifiedDateTime());
-            }else {
-                return new CFolder(resourcePath);
+    }
+
+    @Override
+    public List<CResource> list(CPath path) throws ClueException {
+        try {
+            ResponseEntity<ChildrenList> response;
+            HttpEntity entity = new HttpEntity(jsonHeaders);
+            if (path.isRootPath()) {
+                response = restTemplate.exchange(
+                        url.base().route("children").filter(LIST_FILTERS).toString(),
+                        HttpMethod.GET,
+                        entity,
+                        ChildrenList.class
+                );
+            } else {
+                response = restTemplate.exchange(
+                        url.base().segment(path).route("children").filter(LIST_FILTERS).toString(),
+                        HttpMethod.GET,
+                        entity,
+                        ChildrenList.class
+                );
             }
-        }).collect(Collectors.toList());
+            return response.getBody().getValue().stream().map(item -> {
+                CPath resourcePath = CPath.create(path, item.getName());
+                if (item.getFile() != null) {
+                    return new CFile(resourcePath, item.getSize(), item.getLastModifiedDateTime());
+                } else {
+                    return new CFolder(resourcePath);
+                }
+            }).collect(Collectors.toList());
+        } catch (HttpClientErrorException e) {
+            throw new UnAuthorizedException(e.getMessage());
+        }
     }
 
     @Override
@@ -122,6 +147,8 @@ public class OneDrive extends ClueDrive {
                     entity,
                     CreateFolderResponse.class);
             return new CFolder(CPath.create(parentFolder.getRemotePath(), response.getBody().getName()));
+        } catch (HttpClientErrorException e) {
+            throw new UnAuthorizedException(e.getMessage());
         } catch (IOException e) {
             throw new ClueException(e);
         }
@@ -165,6 +192,8 @@ public class OneDrive extends ClueDrive {
                     fileResponse.getBody().getSize(), fileResponse.getBody().getLastModifiedDateTime());
             returnFile.setLocalPath(localPath);
             return returnFile;
+        } catch (HttpClientErrorException e) {
+            throw new UnAuthorizedException(e.getMessage());
         } catch (IOException e) {
             throw new ClueException(e);
         }
@@ -172,33 +201,38 @@ public class OneDrive extends ClueDrive {
 
     @Override
     public void delete(CResource resource) throws ClueException {
-        HttpEntity entity = new HttpEntity(jsonHeaders);
-        restTemplate.exchange(
-                url.base().segment(resource.getRemotePath()).toString(),
-                HttpMethod.DELETE,
-                entity,
-                Item.class
-        );
+        try{
+            HttpEntity entity = new HttpEntity(jsonHeaders);
+            restTemplate.exchange(
+                    url.base().segment(resource.getRemotePath()).toString(),
+                    HttpMethod.DELETE,
+                    entity,
+                    Item.class
+            );
+        } catch (HttpClientErrorException e) {
+            throw new UnAuthorizedException(e.getMessage());
+        }
     }
 
     @Override
     public CFile downloadFile(CFile remoteFile, Path localPath) throws ClueException {
-        HttpHeaders rangeHeader = new HttpHeaders();
-        rangeHeader.set("Authorization", "Bearer " + accessToken);
-        HttpEntity entity = new HttpEntity(rangeHeader);
-        ResponseEntity<byte[]> fileMetadata = restTemplate.exchange(
-                url.base().segment(remoteFile.getRemotePath()).toString(),
-                HttpMethod.GET,
-                entity,
-                byte[].class);
         try {
+            HttpHeaders rangeHeader = new HttpHeaders();
+            rangeHeader.set("Authorization", "Bearer " + accessToken);
+            HttpEntity entity = new HttpEntity(rangeHeader);
+            ResponseEntity<byte[]> fileMetadata = restTemplate.exchange(
+                    url.base().segment(remoteFile.getRemotePath()).toString(),
+                    HttpMethod.GET,
+                    entity,
+                    byte[].class);
+
             Map<String, String> jsonResponse = MAPPER.readValue(fileMetadata.getBody(), new HashMap<String, String>().getClass());
-            if(! jsonResponse.keySet().contains(DOWNLOAD_URL_FIELD)) {
+            if (!jsonResponse.keySet().contains(DOWNLOAD_URL_FIELD)) {
                 throw new InternalErrorException("Download url missing from response");
             }
             String downloadUrl = jsonResponse.get(DOWNLOAD_URL_FIELD);
             ResponseEntity<byte[]> fileContent = restTemplate.getForEntity(downloadUrl, byte[].class);
-            try(FileOutputStream outputStream = new FileOutputStream(localPath.toFile())) {
+            try (FileOutputStream outputStream = new FileOutputStream(localPath.toFile())) {
                 outputStream.write(fileContent.getBody());
             }
             CFile returnFile = new CFile(remoteFile.getRemotePath(),
@@ -206,6 +240,8 @@ public class OneDrive extends ClueDrive {
                     remoteFile.getLastModified());
             returnFile.setLocalPath(localPath);
             return returnFile;
+        } catch (HttpClientErrorException e) {
+            throw new UnAuthorizedException(e.getMessage());
         } catch (IOException e) {
             throw new ClueException(e);
         }

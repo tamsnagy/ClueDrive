@@ -17,6 +17,7 @@ public abstract class ClueDrive implements Serializable {
 
 
     public abstract void initialize();
+    public abstract CAccountInfo getAccountInfo() throws ClueException;
     public abstract List<CResource> list(CPath path) throws ClueException;
     public abstract CFolder createFolder(CFolder parentFolder, String folderName) throws ClueException;
     public abstract CFolder getRootFolder() throws ClueException;

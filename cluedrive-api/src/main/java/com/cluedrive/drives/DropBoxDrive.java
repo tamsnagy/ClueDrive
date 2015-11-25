@@ -29,7 +29,6 @@ public class DropBoxDrive extends ClueDrive {
     public DropBoxDrive(boolean test) {
         provider = ClueDriveProvider.DROPBOX;
         config = new DbxRequestConfig("Clue Drive/1.0", Locale.getDefault().toString());
-        DbxAppInfo appInfo = new DbxAppInfo(PropertiesUtility.apiProperty("dropBox.appKey"), PropertiesUtility.apiProperty("dropBox.clientSecret"));
     }
 
     @Override
@@ -53,6 +52,16 @@ public class DropBoxDrive extends ClueDrive {
         DbxAppInfo appInfo = new DbxAppInfo(PropertiesUtility.apiProperty("dropBox.appKey"), PropertiesUtility.apiProperty("dropBox.clientSecret"));
         webAuth = new DbxWebAuthNoRedirect(config, appInfo);
         client = new DbxClient(config, accessToken);
+    }
+
+    @Override
+    public CAccountInfo getAccountInfo() throws ClueException{
+        try {
+            DbxAccountInfo accountInfo = client.getAccountInfo();
+            return new CAccountInfo(accountInfo.displayName, accountInfo.quota.total);
+        } catch (DbxException e) {
+            throw new ClueException(e);
+        }
     }
 
     @Override
