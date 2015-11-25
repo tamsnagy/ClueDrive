@@ -56,6 +56,14 @@ public class OneDrive extends ClueDrive {
     }
 
     @Override
+    public void finishAuth(String accessToken) throws ClueException {
+        this.accessToken = accessToken;
+        jsonHeaders = new HttpHeaders();
+        jsonHeaders.set("Authorization", "Bearer " + accessToken);
+        jsonHeaders.setContentType(MediaType.APPLICATION_JSON);
+    }
+
+    @Override
     public void initialize() {
         restTemplate = new RestTemplate();
         jsonHeaders = new HttpHeaders();
@@ -121,7 +129,8 @@ public class OneDrive extends ClueDrive {
 
     @Override
     public CFolder getRootFolder() throws ClueException {
-        return null;
+        return new CFolder(CPath.create("/"));
+
     }
 
     @Override

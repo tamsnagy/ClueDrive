@@ -135,9 +135,9 @@ public class MainWindow extends JFrame {
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                model.currentPath = model.currentPath.getParent();
-                if(model.currentPath.isRootPath()) {
-                    model.currentHolder = null;
+                ClueApplication.currentPath = ClueApplication.currentPath.getParent();
+                if(ClueApplication.currentPath.isRootPath()) {
+                    ClueApplication.currentHolder = null;
                 }
                 refreshAddressPane();
                 refreshResourcePane();
@@ -183,7 +183,7 @@ public class MainWindow extends JFrame {
 
         addressPanel.add(Box.createRigidArea(new Dimension(10, 10)));
 
-        label = new JLabel(" " + model.getLocalRootPath().toString() + "  ");
+        label = new JLabel(" " + ClueApplication.getLocalRootPath().toString() + "  ");
         label.setAlignmentY(CENTER_ALIGNMENT);
         label.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1, true));
         label.setToolTipText("Offline files root directory on your computer");
@@ -191,7 +191,7 @@ public class MainWindow extends JFrame {
 
         addressPanel.add(Box.createRigidArea(new Dimension(10, 10)));
 
-        label = new JLabel(model.currentPath.toString());
+        label = new JLabel(ClueApplication.currentPath.toString());
         label.setAlignmentY(CENTER_ALIGNMENT);
         addressPanel.add(label);
 
@@ -206,10 +206,10 @@ public class MainWindow extends JFrame {
         SwingWorker worker = new SwingWorker<Void, CResourceUI>() {
             @Override
             protected Void doInBackground() throws Exception {
-                if(model.currentHolder == null) {
+                if(ClueApplication.currentHolder == null) {
                     model.getMyDrives().forEach(drive -> {
                         try {
-                            publish(drive.list(model.currentPath).stream().map(resource -> new CResourceUI(resource, drive))
+                            publish(drive.list(ClueApplication.currentPath).stream().map(resource -> new CResourceUI(resource, drive))
                                             .toArray(CResourceUI[]::new)
                             );
                         } catch (ClueException e) {
@@ -217,7 +217,7 @@ public class MainWindow extends JFrame {
                         }
                     });
                 } else {
-                    publish(model.currentHolder.list(model.currentPath).stream().map(resource -> new CResourceUI(resource, model.currentHolder))
+                    publish(ClueApplication.currentHolder.list(ClueApplication.currentPath).stream().map(resource -> new CResourceUI(resource, ClueApplication.currentHolder))
                             .toArray(CResourceUI[]::new));
                 }
                 return null;
@@ -270,7 +270,7 @@ public class MainWindow extends JFrame {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             fileChooser.setMultiSelectionEnabled(false);
-            fileChooser.setCurrentDirectory(model.getLocalRootPath().toFile());
+            fileChooser.setCurrentDirectory(ClueApplication.getLocalRootPath().toFile());
             if(JFileChooser.APPROVE_OPTION == fileChooser.showDialog(this, "Set as local home directory")) {
                 //TODO: maybe copy all files from there to new place
                 model.setLocalRootPath(fileChooser.getSelectedFile().toPath());

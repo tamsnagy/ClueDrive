@@ -34,6 +34,7 @@ public class ClueApplication implements Serializable {
     private static MainWindow mainWindow;
     public static CPath currentPath;
     public static ClueDrive currentHolder;
+    public static CPath basePath;
 
     public ClueApplication() {
         localRootPath = Paths.get(new JFileChooser().getFileSystemView().getDefaultDirectory().getAbsolutePath() + File.separator + "ClueDrive local files");
@@ -42,7 +43,8 @@ public class ClueApplication implements Serializable {
     }
     private void initialize() {
         try {
-            currentPath = CPath.create("/");
+            basePath = CPath.create("/ClueDriveFolder");
+            currentPath = basePath;
             currentHolder = null;
         } catch (IllegalPathException e) {
             e.printStackTrace();
@@ -57,15 +59,15 @@ public class ClueApplication implements Serializable {
                 if(Files.exists(setupOrigin)) {
                     try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(setupOrigin.toFile()))) {
                         application = (ClueApplication) inputStream.readObject();
-                        application.localRootPath = Paths.get(application.localRootPathAsString);
+                        localRootPath = Paths.get(application.localRootPathAsString);
                     }
                 } else {
                     Files.createDirectories(setupOrigin.getParent());
                     application = new ClueApplication();
                     application.persist();
                 }
-                if( ! Files.exists(application.localRootPath)) {
-                    Files.createDirectories(application.localRootPath);
+                if( ! Files.exists(localRootPath)) {
+                    Files.createDirectories(localRootPath);
                 }
                 application.initialize();
                 // Create previously registered drives;
@@ -134,6 +136,7 @@ public class ClueApplication implements Serializable {
     public void addAccessTokenToTmpDrive(String accessToken) {
         try {
             tmpDrive.finishAuth(accessToken);
+            tmpDrive.createFolder(tmpDrive.getRootFolder(), basePath.getLeaf());
         } catch (ClueException e) {
             e.printStackTrace();
         }
