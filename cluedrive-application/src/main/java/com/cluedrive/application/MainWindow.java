@@ -184,7 +184,11 @@ public class MainWindow extends JFrame {
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                //TODO: iconRemove
+                if(ClueApplication.deleteSelectedResources()) {
+                    removeSelectionText.setVisible(false);
+                    removeSelectionIcon.setVisible(false);
+                    refreshResourcePane();
+                }
             }
         });
         addressPanel.add(label);
@@ -401,4 +405,6 @@ public class MainWindow extends JFrame {
         removeSelectionText.setVisible(!removeSelectionText.isVisible());
         addressPanel.repaint();
     }
+
+
 }

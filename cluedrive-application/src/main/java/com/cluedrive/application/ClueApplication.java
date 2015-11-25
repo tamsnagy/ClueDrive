@@ -34,7 +34,7 @@ public class ClueApplication implements Serializable {
     public static AppDrive currentDrive;
     public static java.util.Deque<CFolder> currentFolder;
     public static CPath basePath;
-    private static List<CResource> selected;
+    private static List<CResourceUI> selected;
 
     private int roundRobinDrive;
 
@@ -213,14 +213,14 @@ public class ClueApplication implements Serializable {
         }
     }
 
-    public static void addSelected(CResource resource) {
+    public static void addSelected(CResourceUI resource) {
         if(selected.isEmpty()) {
             mainWindow.invertShowRemoveSelectionLabel();
         }
         selected.add(resource);
     }
 
-    public static void removeSelected(CResource resource) {
+    public static void removeSelected(CResourceUI resource) {
         selected.remove(resource);
         if(selected.isEmpty()) {
             mainWindow.invertShowRemoveSelectionLabel();
@@ -229,5 +229,20 @@ public class ClueApplication implements Serializable {
 
     public static void emptySelected() {
         selected = new ArrayList<>();
+    }
+
+    public static boolean deleteSelectedResources() {
+        if(selected.isEmpty()) {
+            return false;
+        }
+        selected.forEach(resourceUI -> {
+            try {
+                resourceUI.getHolder().getDrive().delete(resourceUI.getResource());
+            } catch (ClueException e) {
+                e.printStackTrace();
+            }
+        });
+        emptySelected();
+        return true;
     }
 }

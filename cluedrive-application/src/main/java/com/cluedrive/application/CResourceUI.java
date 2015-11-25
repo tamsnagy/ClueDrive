@@ -29,6 +29,7 @@ public class CResourceUI extends JPanel {
     public static ImageIcon iconTick;
 
     public CResourceUI(CResource resource, AppDrive holder) {
+        this.holder = holder;
         this.resource = resource;
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         this.setMinimumSize(new Dimension(60, 60));
@@ -60,10 +61,10 @@ public class CResourceUI extends JPanel {
                 if(e.getClickCount() == 1) {
                     if(tickLabel.isVisible()) {
                         tickLabel.setVisible(false);
-                        ClueApplication.removeSelected(resource);
+                        ClueApplication.removeSelected((CResourceUI)e.getComponent());
                     } else {
                         tickLabel.setVisible(true);
-                        ClueApplication.addSelected(resource);
+                        ClueApplication.addSelected((CResourceUI)e.getComponent());
                     }
                 }
                 if(e.getClickCount() == 2) {
