@@ -1,7 +1,5 @@
 package com.cluedrive.application;
 
-import com.cluedrive.commons.CResource;
-import com.cluedrive.commons.ClueDrive;
 import com.cluedrive.commons.PropertiesUtility;
 import com.cluedrive.exception.ClueException;
 
@@ -15,8 +13,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 /**
  * Created by Tamas on 2015-11-16.
@@ -31,25 +27,32 @@ public class MainWindow extends JFrame {
     private JPanel addressPanel;
     private ImageIcon iconAdd;
     private ImageIcon iconRemove;
-    private ImageIcon iconFolder;
-    private ImageIcon iconFile;
     private ImageIcon iconLoad;
     private ImageIcon iconBack;
     private ImageIcon iconNewFolder;
+    private ImageIcon iconRemoveSelection;
     private JSplitPane splitPane;
+
+    public JLabel removeSelectionIcon;
+    public JLabel removeSelectionText;
 
     private java.util.List<Color> colorList = Arrays.asList(Color.GREEN, Color.ORANGE, Color.MAGENTA, Color.CYAN);
 
     private MainWindow(ClueApplication model) {
         iconAdd = new ImageIcon("cluedrive-application/build/resources/main/images/add.png");
         iconRemove = new ImageIcon("cluedrive-application/build/resources/main/images/remove.png");
-        iconFolder = new ImageIcon("cluedrive-application/build/resources/main/images/folder.png");
-        iconFile = new ImageIcon("cluedrive-application/build/resources/main/images/file.png");
+        ImageIcon iconFolder = new ImageIcon("cluedrive-application/build/resources/main/images/folder.png");
+        ImageIcon iconFile = new ImageIcon("cluedrive-application/build/resources/main/images/file.png");
         iconLoad = new ImageIcon("cluedrive-application/build/resources/main/images/load.gif");
         iconBack = new ImageIcon("cluedrive-application/build/resources/main/images/back.png");
         iconNewFolder = new ImageIcon("cluedrive-application/build/resources/main/images/new_folder.png");
+        ImageIcon iconTick = new ImageIcon("cluedrive-application/build/resources/main/images/tick.png");
+        iconRemoveSelection = new ImageIcon("cluedrive-application/build/resources/main/images/remove_selection.png");
+
         CResourceUI.iconFile = iconFile;
         CResourceUI.iconFolder = iconFolder;
+        CResourceUI.iconTick = iconTick;
+
         this.model = model;
         setTitle("ClueDrive Application");
         setSize(1100, 650);
@@ -86,7 +89,7 @@ public class MainWindow extends JFrame {
         drivesPanel.add(panel);
 
         int color = 0;
-        for(ClueDrive drive : model.getMyDrives()) {
+        for(AppDrive drive : model.getMyDrives()) {
             panel = new JPanel();
             panel.setLayout(new BoxLayout(panel ,BoxLayout.LINE_AXIS));
             panel.add(Box.createRigidArea(new Dimension(20, 40)));
@@ -95,7 +98,7 @@ public class MainWindow extends JFrame {
             if(color == colorList.size()) {
                 color = 0;
             }
-            label = new JLabel(drive.getProvider().toString());
+            label = new JLabel(drive.getDrive().getProvider().toString());
             label.setHorizontalTextPosition(SwingConstants.LEADING);
             panel.add(label);
             panel.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
@@ -135,10 +138,10 @@ public class MainWindow extends JFrame {
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                ClueApplication.currentPath = ClueApplication.currentPath.getParent();
-                if(ClueApplication.currentPath.isRootPath()) {
-                    ClueApplication.currentHolder = null;
+                if(ClueApplication.currentPath.equals(ClueApplication.basePath)) {
+                    return;
                 }
+                ClueApplication.stepOutFolder();
                 refreshAddressPane();
                 refreshResourcePane();
             }
@@ -152,7 +155,12 @@ public class MainWindow extends JFrame {
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                //TODO: iconAdd file
+                String folderName = JOptionPane.showInputDialog(instance, "New folders name:", "New folder", JOptionPane.QUESTION_MESSAGE);
+                if(folderName != null &&  ! "".equals(folderName)) {
+                    model.createFolder(folderName);
+                    refreshAddressPane();
+                    refreshResourcePane();
+                }
             }
         });
         addressPanel.add(label);
@@ -196,6 +204,31 @@ public class MainWindow extends JFrame {
         addressPanel.add(label);
 
         addressPanel.add(Box.createHorizontalGlue());
+
+        removeSelectionIcon = new JLabel(iconRemoveSelection);
+        removeSelectionIcon.setVisible(false);
+        removeSelectionIcon.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                removeSelections();
+            }
+        });
+
+        addressPanel.add(removeSelectionIcon);
+
+        addressPanel.add(Box.createRigidArea(new Dimension(5, 5)));
+
+        removeSelectionText = new JLabel("Erase selection");
+        removeSelectionText.setVisible(false);
+        removeSelectionText.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                removeSelections();
+            }
+        });
+        addressPanel.add(removeSelectionText);
+
+        addressPanel.add(Box.createRigidArea(new Dimension(5, 5)));
     }
 
     private JScrollPane initializeResourcePane() {
@@ -206,10 +239,10 @@ public class MainWindow extends JFrame {
         SwingWorker worker = new SwingWorker<Void, CResourceUI>() {
             @Override
             protected Void doInBackground() throws Exception {
-                if(ClueApplication.currentHolder == null) {
-                    model.getMyDrives().forEach(drive -> {
+                if(ClueApplication.currentDrive == null) {
+                    model.getMyDrives().parallelStream().forEach(drive -> {
                         try {
-                            publish(drive.list(ClueApplication.currentPath).stream().map(resource -> new CResourceUI(resource, drive))
+                            publish(drive.getDrive().list(ClueApplication.currentPath).stream().map(resource -> new CResourceUI(resource, drive))
                                             .toArray(CResourceUI[]::new)
                             );
                         } catch (ClueException e) {
@@ -217,7 +250,7 @@ public class MainWindow extends JFrame {
                         }
                     });
                 } else {
-                    publish(ClueApplication.currentHolder.list(ClueApplication.currentPath).stream().map(resource -> new CResourceUI(resource, ClueApplication.currentHolder))
+                    publish(ClueApplication.currentDrive.getDrive().list(ClueApplication.currentPath).stream().map(resource -> new CResourceUI(resource, ClueApplication.currentDrive))
                             .toArray(CResourceUI[]::new));
                 }
                 return null;
@@ -272,7 +305,6 @@ public class MainWindow extends JFrame {
             fileChooser.setMultiSelectionEnabled(false);
             fileChooser.setCurrentDirectory(ClueApplication.getLocalRootPath().toFile());
             if(JFileChooser.APPROVE_OPTION == fileChooser.showDialog(this, "Set as local home directory")) {
-                //TODO: maybe copy all files from there to new place
                 model.setLocalRootPath(fileChooser.getSelectedFile().toPath());
                 refreshAddressPane();
             }
@@ -320,6 +352,14 @@ public class MainWindow extends JFrame {
         return menuBar;
     }
 
+    private void removeSelections(){
+        for (Component component : resourcePanel.getComponents()) {
+            ((CResourceUI) component).hideSelected();
+        }
+        ClueApplication.emptySelected();
+        invertShowRemoveSelectionLabel();
+    }
+
     private void startAddNewDrive() {
         DriveChooserFrame frame = new DriveChooserFrame(instance);
     }
@@ -354,5 +394,11 @@ public class MainWindow extends JFrame {
         JScrollPane scrollPane = new JScrollPane(resourcePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setMinimumSize(new Dimension(500, 400));
         mainPanel.add(scrollPane);
+    }
+
+    public void invertShowRemoveSelectionLabel() {
+        removeSelectionIcon.setVisible(!removeSelectionIcon.isVisible());
+        removeSelectionText.setVisible(!removeSelectionText.isVisible());
+        addressPanel.repaint();
     }
 }

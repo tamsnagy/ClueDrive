@@ -1,6 +1,7 @@
 package com.cluedrive.application;
 
 import com.cluedrive.commons.CFile;
+import com.cluedrive.commons.CFolder;
 import com.cluedrive.commons.CResource;
 import com.cluedrive.commons.ClueDrive;
 import com.cluedrive.exception.ClueException;
@@ -20,11 +21,14 @@ import java.nio.file.Paths;
  */
 public class CResourceUI extends JPanel {
     private CResource resource;
-    private ClueDrive holder;
+    private AppDrive holder;
+    private JLabel tickLabel;
+
     public static ImageIcon iconFolder;
     public static ImageIcon iconFile;
+    public static ImageIcon iconTick;
 
-    public CResourceUI(CResource resource, ClueDrive holder) {
+    public CResourceUI(CResource resource, AppDrive holder) {
         this.resource = resource;
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         this.setMinimumSize(new Dimension(60, 60));
@@ -38,7 +42,11 @@ public class CResourceUI extends JPanel {
         }
         this.add(label);
 
-        this.add(Box.createRigidArea(new Dimension(5, 5)));
+        tickLabel = new JLabel(iconTick);
+        tickLabel.setAlignmentX(CENTER_ALIGNMENT);
+        tickLabel.setVisible(false);
+
+        this.add(tickLabel);
 
         label = new JLabel(resource.getName());
         label.setAlignmentX(CENTER_ALIGNMENT);
@@ -49,10 +57,20 @@ public class CResourceUI extends JPanel {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                if(e.getClickCount() == 1) {
+                    if(tickLabel.isVisible()) {
+                        tickLabel.setVisible(false);
+                        ClueApplication.removeSelected(resource);
+                    } else {
+                        tickLabel.setVisible(true);
+                        ClueApplication.addSelected(resource);
+                    }
+                }
                 if(e.getClickCount() == 2) {
                     if(resource.isFolder()) {
-                        ClueApplication.currentHolder = holder;
-                        ClueApplication.currentPath = resource.getRemotePath();
+                        ClueApplication.emptySelected();
+                        ClueApplication.currentDrive = holder;
+                        ClueApplication.stepInFolder((CFolder)resource);
                         ClueApplication.refreshMainPanel();
                     } else {
                         if(JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(e.getComponent().getParent(),
@@ -66,7 +84,7 @@ public class CResourceUI extends JPanel {
                                     try {
                                         Path localPath = Paths.get(ClueApplication.getLocalRootPath().toString() + File.separator + resource.getRemotePath().toString().substring(1));
                                         Files.createDirectories(localPath.getParent());
-                                        holder.downloadFile((CFile) resource, localPath);
+                                        holder.getDrive().downloadFile((CFile) resource, localPath);
                                         Desktop.getDesktop().open(localPath.toFile());
                                     } catch (ClueException e1) {
                                         e1.printStackTrace();
@@ -87,7 +105,12 @@ public class CResourceUI extends JPanel {
         return resource;
     }
 
-    public ClueDrive getHolder() {
+    public AppDrive getHolder() {
         return holder;
+    }
+
+    public void hideSelected(){
+        tickLabel.setVisible(false);
+        this.repaint();
     }
 }

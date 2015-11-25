@@ -1,9 +1,6 @@
 package com.cluedrive.application;
 
-import com.cluedrive.commons.CPath;
-import com.cluedrive.commons.CResource;
-import com.cluedrive.commons.ClueDrive;
-import com.cluedrive.commons.ClueDriveProvider;
+import com.cluedrive.commons.*;
 import com.cluedrive.drives.DropBoxDrive;
 import com.cluedrive.drives.GoogleDrive;
 import com.cluedrive.drives.OneDrive;
@@ -18,6 +15,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,12 +27,17 @@ public class ClueApplication implements Serializable {
     private static final Path setupOrigin = Paths.get(new JFileChooser().getFileSystemView().getDefaultDirectory().getParentFile().getAbsolutePath() + File.separator + "ClueDrive" + File.separator + "setupData.obj");
     private static Path localRootPath;
     private String localRootPathAsString;
-    private List<ClueDrive> myDrives = new ArrayList<>();
+    private List<AppDrive> myDrives = new ArrayList<>();
     private transient ClueDrive tmpDrive = null;
     private static MainWindow mainWindow;
     public static CPath currentPath;
-    public static ClueDrive currentHolder;
+    public static AppDrive currentDrive;
+    public static java.util.Deque<CFolder> currentFolder;
     public static CPath basePath;
+    private static List<CResource> selected;
+
+    private int roundRobinDrive;
+
 
     public ClueApplication() {
         localRootPath = Paths.get(new JFileChooser().getFileSystemView().getDefaultDirectory().getAbsolutePath() + File.separator + "ClueDrive local files");
@@ -43,9 +46,11 @@ public class ClueApplication implements Serializable {
     }
     private void initialize() {
         try {
-            basePath = CPath.create("/ClueDriveFolder");
+            basePath = CPath.create("/Cloud");
             currentPath = basePath;
-            currentHolder = null;
+            currentDrive = null;
+            currentFolder = new ArrayDeque<>();
+            selected = new ArrayList<>();
         } catch (IllegalPathException e) {
             e.printStackTrace();
         }
@@ -71,7 +76,7 @@ public class ClueApplication implements Serializable {
                 }
                 application.initialize();
                 // Create previously registered drives;
-                application.myDrives.forEach(com.cluedrive.commons.ClueDrive::initialize);
+                application.myDrives.forEach(appDrive -> appDrive.getDrive().initialize());
                 createAndShowGUI(application);
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
@@ -99,18 +104,6 @@ public class ClueApplication implements Serializable {
         mainWindow.setVisible(true);
     }
 
-    public List<CResource> listAllResources(){
-        List<CResource> resources = new ArrayList<>();
-        for(ClueDrive drive : myDrives) {
-            try {
-                resources.addAll(drive.list(currentPath));
-            } catch (ClueException e) {
-                e.printStackTrace();
-            }
-        }
-        return resources;
-    }
-
     public void addDriveCandidate(ClueDriveProvider provider) {
         switch (provider) {
             case GOOGLE:
@@ -136,11 +129,12 @@ public class ClueApplication implements Serializable {
     public void addAccessTokenToTmpDrive(String accessToken) {
         try {
             tmpDrive.finishAuth(accessToken);
-            tmpDrive.createFolder(tmpDrive.getRootFolder(), basePath.getLeaf());
+            CFolder folder = tmpDrive.createFolder(tmpDrive.getRootFolder(), basePath.getLeaf());
+            AppDrive appDrive = new AppDrive(tmpDrive, folder);
+            myDrives.add(appDrive);
         } catch (ClueException e) {
             e.printStackTrace();
         }
-        myDrives.add(tmpDrive);
 
         //TODO: check if token is real
         mainWindow.refreshDrivePane();
@@ -159,11 +153,11 @@ public class ClueApplication implements Serializable {
         persist();
     }
 
-    public List<ClueDrive> getMyDrives() {
+    public List<AppDrive> getMyDrives() {
         return myDrives;
     }
 
-    public void setMyDrives(List<ClueDrive> myDrives) {
+    public void setMyDrives(List<AppDrive> myDrives) {
         this.myDrives = myDrives;
         persist();
     }
@@ -183,5 +177,57 @@ public class ClueApplication implements Serializable {
     public static void refreshMainPanel() {
         mainWindow.refreshAddressPane();
         mainWindow.refreshResourcePane();
+    }
+
+    public static void stepInFolder(CFolder folder) {
+        currentFolder.addLast(folder);
+        currentPath = folder.getRemotePath();
+    }
+
+    public static void stepOutFolder() {
+        currentFolder.pollLast();
+        if(currentFolder.isEmpty()) {
+            currentPath = basePath;
+            currentDrive = null;
+        } else {
+            currentPath = currentFolder.peekLast().getRemotePath();
+        }
+    }
+
+    public void createFolder(String folderName) {
+        AppDrive selectedDrive = currentDrive;
+        CFolder parentFolder = currentFolder.peekLast();
+        if(currentDrive == null) {
+            selectedDrive = myDrives.get(roundRobinDrive);
+            roundRobinDrive++;
+            if(roundRobinDrive >= myDrives.size()) {
+                roundRobinDrive = 0;
+            }
+            parentFolder = selectedDrive.getRootFolder();
+
+        }
+        try {
+            selectedDrive.getDrive().createFolder(parentFolder, folderName);
+        } catch (ClueException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void addSelected(CResource resource) {
+        if(selected.isEmpty()) {
+            mainWindow.invertShowRemoveSelectionLabel();
+        }
+        selected.add(resource);
+    }
+
+    public static void removeSelected(CResource resource) {
+        selected.remove(resource);
+        if(selected.isEmpty()) {
+            mainWindow.invertShowRemoveSelectionLabel();
+        }
+    }
+
+    public static void emptySelected() {
+        selected = new ArrayList<>();
     }
 }

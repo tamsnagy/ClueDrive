@@ -1,11 +1,12 @@
 package com.cluedrive.commons;
 
+import java.io.Serializable;
 import java.nio.file.Path;
 
 /**
  * Created by Tamas on 2015-09-30.
  */
-public abstract class CResource {
+public abstract class CResource implements Serializable {
     protected String id;
     protected CPath remotePath;
     protected Path localPath;
