@@ -21,14 +21,14 @@ public class DropBoxDrive extends ClueDrive {
 
     public DropBoxDrive() {
         provider = ClueDriveProvider.DROPBOX;
-        config = new DbxRequestConfig("ClueDrive", Locale.getDefault().toString());
+        config = new DbxRequestConfig("Clue Drive/1.0", Locale.getDefault().toString());
         DbxAppInfo appInfo = new DbxAppInfo(PropertiesUtility.apiProperty("dropBox.appKey"), PropertiesUtility.apiProperty("dropBox.clientSecret"));
         webAuth = new DbxWebAuthNoRedirect(config, appInfo);
     }
 
     public DropBoxDrive(boolean test) {
         provider = ClueDriveProvider.DROPBOX;
-        config = new DbxRequestConfig("ClueDrive", Locale.getDefault().toString());
+        config = new DbxRequestConfig("Clue Drive/1.0", Locale.getDefault().toString());
         DbxAppInfo appInfo = new DbxAppInfo(PropertiesUtility.apiProperty("dropBox.appKey"), PropertiesUtility.apiProperty("dropBox.clientSecret"));
     }
 

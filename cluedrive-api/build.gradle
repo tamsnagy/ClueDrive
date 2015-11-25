@@ -1,5 +1,5 @@
 dependencies {
-    compile 'com.dropbox.core:dropbox-core-sdk:1.8.1'
+    compile 'com.dropbox.core:dropbox-core-sdk:1.8.2'
     compile 'com.google.apis:google-api-services-drive:v2-rev186-1.20.0'
     compile 'com.google.oauth-client:google-oauth-client-jetty:1.20.0'
     compile 'org.springframework:spring-web:4.2.1.RELEASE'

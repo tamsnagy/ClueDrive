@@ -132,7 +132,11 @@ public class ClueApplication implements Serializable {
     }
 
     public void addAccessTokenToTmpDrive(String accessToken) {
-        tmpDrive.setAccessToken(accessToken);
+        try {
+            tmpDrive.finishAuth(accessToken);
+        } catch (ClueException e) {
+            e.printStackTrace();
+        }
         myDrives.add(tmpDrive);
 
         //TODO: check if token is real
