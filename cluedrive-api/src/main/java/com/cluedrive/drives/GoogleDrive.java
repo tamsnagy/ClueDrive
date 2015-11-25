@@ -32,17 +32,24 @@ import java.util.*;
  * Created by Tamas on 2015-10-01.
  */
 public class GoogleDrive extends ClueDrive {
-    private static final Path setupOrigin = Paths.get(new JFileChooser().getFileSystemView().getDefaultDirectory().getParentFile().getAbsolutePath() + java.io.File.separator + "ClueDrive" + java.io.File.separator + "credentials");
+    private String setupOrigin;
     private transient Drive client;
     public static final String FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
 
     public GoogleDrive() {
         provider = ClueDriveProvider.GOOGLE;
+        this.setupOrigin = new JFileChooser().getFileSystemView().getDefaultDirectory().getParentFile().getAbsolutePath() + java.io.File.separator + "ClueDrive" + java.io.File.separator + "credentials";
     }
 
     public GoogleDrive(Drive client) {
         provider = ClueDriveProvider.GOOGLE;
         this.client = client;
+        this.setupOrigin = new JFileChooser().getFileSystemView().getDefaultDirectory().getParentFile().getAbsolutePath() + java.io.File.separator + "ClueDrive" + java.io.File.separator + "credentials";
+    }
+
+    public GoogleDrive(Path setupPath) {
+        provider = ClueDriveProvider.GOOGLE;
+        setupOrigin = setupPath.toString();
     }
 
     @Override
@@ -57,7 +64,7 @@ public class GoogleDrive extends ClueDrive {
             // Build flow and trigger user authorization request.
             GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                     httpTransport, jsonFactory, clientSecrets, Arrays.asList(DriveScopes.DRIVE))
-                        .setDataStoreFactory(new FileDataStoreFactory(setupOrigin.toFile()))
+                        .setDataStoreFactory(new FileDataStoreFactory(Paths.get(setupOrigin).toFile()))
                         .setAccessType("offline")
                         .build();
 

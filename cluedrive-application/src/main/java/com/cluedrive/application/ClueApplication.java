@@ -107,7 +107,12 @@ public class ClueApplication implements Serializable {
     public void addDriveCandidate(ClueDriveProvider provider) {
         switch (provider) {
             case GOOGLE:
-                tmpDrive = new GoogleDrive();
+                int counter = 0;
+                String credentialsPath = new JFileChooser().getFileSystemView().getDefaultDirectory().getParentFile().getAbsolutePath() + java.io.File.separator + "ClueDrive" + java.io.File.separator + "credentials";
+                while(Files.exists(Paths.get(credentialsPath + counter))) {
+                    counter++;
+                }
+                tmpDrive = new GoogleDrive(Paths.get(credentialsPath + counter));
                 break;
             case ONEDRIVE:
                 tmpDrive = new OneDrive();
