@@ -64,6 +64,10 @@ public class MainWindow extends JFrame {
         this.add(splitPane);
     }
 
+    /**
+     * Initializes drives panel. Which shows what kind of drives are registered.
+     * @return The scrollable panel of drives.
+     */
     private JScrollPane initializeDrivePane() {
         drivesPanel = new JPanel();
         drivesPanel.setBackground(Color.BLUE);
@@ -113,6 +117,10 @@ public class MainWindow extends JFrame {
         return scrollPane;
     }
 
+    /**
+     * Creates The main panel with addressPanel, and Resources panel.
+     * @return The mainPanel
+     */
     private JPanel initializeMainPanel() {
         mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
@@ -126,6 +134,9 @@ public class MainWindow extends JFrame {
         return mainPanel;
     }
 
+    /**
+     * Initializes address panel. Contains the mouse listeners of action icons.
+     */
     private void initializeAddressPanel() {
         addressPanel = new JPanel();
         addressPanel.setAlignmentY(LEFT_ALIGNMENT);
@@ -133,8 +144,11 @@ public class MainWindow extends JFrame {
 
         addressPanel.add(Box.createRigidArea(new Dimension(20,20)));
 
+        // Go a level up in directory tree
+
         JLabel label = new JLabel(iconBack);
         label.setAlignmentY(CENTER_ALIGNMENT);
+        label.setToolTipText("Go Up");
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -142,7 +156,6 @@ public class MainWindow extends JFrame {
                     return;
                 }
                 ClueApplication.stepOutFolder();
-                refreshAddressPane();
                 refreshResourcePane();
             }
         });
@@ -150,15 +163,17 @@ public class MainWindow extends JFrame {
 
         addressPanel.add(Box.createRigidArea(new Dimension(10,10)));
 
+        // Create new folder
+
         label = new JLabel(iconNewFolder);
         label.setAlignmentY(CENTER_ALIGNMENT);
+        label.setToolTipText("New Folder");
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 String folderName = JOptionPane.showInputDialog(instance, "New folders name:", "New folder", JOptionPane.QUESTION_MESSAGE);
                 if(folderName != null &&  ! "".equals(folderName)) {
                     model.createFolder(folderName);
-                    refreshAddressPane();
                     refreshResourcePane();
                 }
             }
@@ -167,8 +182,11 @@ public class MainWindow extends JFrame {
 
         addressPanel.add(Box.createRigidArea(new Dimension(10,10)));
 
+        // Add new item to current folder.
+
         label = new JLabel(iconAdd);
         label.setAlignmentY(CENTER_ALIGNMENT);
+        label.setToolTipText("Add item");
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -179,8 +197,11 @@ public class MainWindow extends JFrame {
 
         addressPanel.add(Box.createRigidArea(new Dimension(10,10)));
 
+        //Delete items if there is any selected one.
+
         label = new JLabel(iconRemove);
         label.setAlignmentY(CENTER_ALIGNMENT);
+        label.setToolTipText("Delete selected items");
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -195,6 +216,8 @@ public class MainWindow extends JFrame {
 
         addressPanel.add(Box.createRigidArea(new Dimension(10, 10)));
 
+        // Show the location on local drive.
+
         label = new JLabel(" " + ClueApplication.getLocalRootPath().toString() + "  ");
         label.setAlignmentY(CENTER_ALIGNMENT);
         label.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1, true));
@@ -203,11 +226,16 @@ public class MainWindow extends JFrame {
 
         addressPanel.add(Box.createRigidArea(new Dimension(10, 10)));
 
+        // Show the current path on cloud.
+
         label = new JLabel(ClueApplication.currentPath.toString());
         label.setAlignmentY(CENTER_ALIGNMENT);
+        label.setToolTipText("Path on cloud");
         addressPanel.add(label);
 
         addressPanel.add(Box.createHorizontalGlue());
+
+        // Erase selection icon and label.
 
         removeSelectionIcon = new JLabel(iconRemoveSelection);
         removeSelectionIcon.setVisible(false);
@@ -235,18 +263,26 @@ public class MainWindow extends JFrame {
         addressPanel.add(Box.createRigidArea(new Dimension(5, 5)));
     }
 
+    /**
+     * Initializes resource pane. Lists resources from current path.
+     * @return The scrollable pane with resources, or a loading panel.
+     */
     private JScrollPane initializeResourcePane() {
         resourcePanel = new JPanel();
         resourcePanel.setBackground(Color.WHITE);
         resourcePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
         resourcePanel.setPreferredSize(new Dimension(480, 380));
         SwingWorker worker = new SwingWorker<Void, CResourceUI>() {
+            /**
+             * Loads all resources according to ClueApplication currentPath.
+             */
             @Override
             protected Void doInBackground() throws Exception {
                 if(ClueApplication.currentDrive == null) {
+                    //current path is the root, every drive must be asked for its root resources.
                     model.getMyDrives().parallelStream().forEach(drive -> {
                         try {
-                            publish(drive.getDrive().list(ClueApplication.currentPath).stream().map(resource -> new CResourceUI(resource, drive))
+                            publish(drive.getDrive().list(ClueApplication.currentPath).parallelStream().map(resource -> new CResourceUI(resource, drive))
                                             .toArray(CResourceUI[]::new)
                             );
                         } catch (ClueException e) {
@@ -254,12 +290,17 @@ public class MainWindow extends JFrame {
                         }
                     });
                 } else {
-                    publish(ClueApplication.currentDrive.getDrive().list(ClueApplication.currentPath).stream().map(resource -> new CResourceUI(resource, ClueApplication.currentDrive))
+                    // only the owner of current path needs to be asked for its resources.
+                    publish(ClueApplication.currentDrive.getDrive().list(ClueApplication.currentPath).parallelStream().map(resource -> new CResourceUI(resource, ClueApplication.currentDrive))
                             .toArray(CResourceUI[]::new));
                 }
                 return null;
             }
 
+            /**
+             * Adds loaded resources to resource panel.
+             * @param chunks
+             */
             @Override
             protected void process(final List<CResourceUI> chunks) {
                 chunks.forEach(resourcePanel::add);
@@ -289,6 +330,10 @@ public class MainWindow extends JFrame {
 
     }
 
+    /**
+     * Initializes the menu bar.
+     * @return
+     */
     private JMenuBar initializedMenuBar() {
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
@@ -318,7 +363,6 @@ public class MainWindow extends JFrame {
         menuItem = new JMenuItem("Refresh");
         menuItem.addActionListener(actionEvent -> {
             refreshDrivePane();
-            refreshAddressPane();
             refreshResourcePane();
         });
         fileMenu.add(menuItem);
@@ -356,6 +400,9 @@ public class MainWindow extends JFrame {
         return menuBar;
     }
 
+    /**
+     * Erases the selections on UI.
+     */
     private void removeSelections(){
         for (Component component : resourcePanel.getComponents()) {
             ((CResourceUI) component).hideSelected();
@@ -364,10 +411,18 @@ public class MainWindow extends JFrame {
         invertShowRemoveSelectionLabel();
     }
 
+    /**
+     * Begins the adding new drive flow.
+     */
     private void startAddNewDrive() {
         DriveChooserFrame frame = new DriveChooserFrame(instance);
     }
 
+    /**
+     * Returns singleton instance of the MainWindow.
+     * @param model The application model on which View and controllers are based.
+     * @return singleton instance of the MainWindow.
+     */
     public static MainWindow getInstance(ClueApplication model) {
         if(instance == null) {
             instance = new MainWindow(model);
@@ -375,19 +430,31 @@ public class MainWindow extends JFrame {
         return instance;
     }
 
-
+    /**
+     * Model getter
+     * @return model of application.
+     */
     public ClueApplication getModel() {
         return model;
     }
 
+    /**
+     * Re initializes the drives panel.
+     */
     public void refreshDrivePane() {
         splitPane.setLeftComponent(initializeDrivePane());
     }
 
+    /**
+     * Re initializes the resources panel.
+     */
     public void refreshResourcePane() {
         splitPane.setRightComponent(initializeMainPanel());
     }
 
+    /**
+     * Re initializes the address panel.
+     */
     public void refreshAddressPane() {
         mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
@@ -398,8 +465,12 @@ public class MainWindow extends JFrame {
         JScrollPane scrollPane = new JScrollPane(resourcePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setMinimumSize(new Dimension(500, 400));
         mainPanel.add(scrollPane);
+        splitPane.setRightComponent(mainPanel);
     }
 
+    /**
+     * Inverts the remove selection icon and text labels.
+     */
     public void invertShowRemoveSelectionLabel() {
         removeSelectionIcon.setVisible(!removeSelectionIcon.isVisible());
         removeSelectionText.setVisible(!removeSelectionText.isVisible());
