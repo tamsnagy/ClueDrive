@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * Created by Tamas on 2015-11-18.
@@ -16,14 +16,17 @@ public class DriveChooserFrame extends JDialog {
     private ClueDriveProvider selectedProvider = null;
     private java.util.List<JLabel> providerLabels = new ArrayList<>();
     private JLabel tokenLabel;
+    private ImageIcon iconLoad;
     private static final String SELECTOR_PANEL = "SelectorPanel";
     private static final String TOKEN_PANEL = "TokenPanel";
+    private static final String LOAD_PANEL = "LaodPanel";
     private static final String DROPBOX_TOKEN_TEXT = "<html><center>Insert here the token you got<br/> from DropBox:</center></html>";
     private static final String ONEDRIVE_TOKEN_TEXT = "<html><center>Insert here the response url <br/> from your browsers addressBar:</center></html>";
 
-    public DriveChooserFrame(MainWindow mainFrame) {
+    public DriveChooserFrame(MainWindow mainFrame, ImageIcon iconLoad) {
         super(mainFrame, true);
         this.mainFrame = mainFrame;
+        this.iconLoad = iconLoad;
         setTitle("Add new Drive");
         setSize(250,300);
         setResizable(false);
@@ -32,8 +35,17 @@ public class DriveChooserFrame extends JDialog {
         this.getContentPane().setLayout(new CardLayout());
         this.add(createSelectorPanel(), SELECTOR_PANEL);
         this.add(createTokenPanel(), TOKEN_PANEL);
+        this.add(createLoadPanel(), LOAD_PANEL);
         ((CardLayout)this.getContentPane().getLayout()).show(this.getContentPane(), SELECTOR_PANEL);
         this.setVisible(true);
+    }
+
+    private JPanel createLoadPanel() {
+        JPanel card = new JPanel();
+        card.setLayout(new BorderLayout());
+        JLabel label = new JLabel(iconLoad);
+        card.add(label, BorderLayout.CENTER);
+        return card;
     }
 
     private JPanel createTokenPanel() {
@@ -68,8 +80,22 @@ public class DriveChooserFrame extends JDialog {
                 int tokenEnd = token.indexOf("&token_type");
                 token = token.substring(tokenBegin, tokenEnd).replace("%2b", " ");
             }
-            mainFrame.getModel().addAccessTokenToTmpDrive(token);
-            dispose();
+            ((CardLayout)this.getContentPane().getLayout()).show(this.getContentPane(), LOAD_PANEL);
+            final String finalToken = token;
+            new SwingWorker<Void, Integer>(){
+
+                @Override
+                protected Void doInBackground() throws Exception {
+                    mainFrame.getModel().addAccessTokenToTmpDrive(finalToken);
+                    publish(0);
+                    return null;
+                }
+
+                @Override
+                protected void process(final java.util.List<Integer> chunks) {
+                    closeWindow();
+                }
+            }.execute();
         });
         button.setAlignmentX(CENTER_ALIGNMENT);
         card.add(button);
@@ -206,5 +232,9 @@ public class DriveChooserFrame extends JDialog {
         }
         selectedProvider = provider;
         return true;
+    }
+
+    public void closeWindow(){
+        dispose();
     }
 }

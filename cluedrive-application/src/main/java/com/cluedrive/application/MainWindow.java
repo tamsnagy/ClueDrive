@@ -444,7 +444,7 @@ public class MainWindow extends JFrame {
      * Begins the adding new drive flow.
      */
     private void startAddNewDrive() {
-        DriveChooserFrame frame = new DriveChooserFrame(instance);
+        DriveChooserFrame frame = new DriveChooserFrame(instance, iconLoad);
     }
 
     /**
