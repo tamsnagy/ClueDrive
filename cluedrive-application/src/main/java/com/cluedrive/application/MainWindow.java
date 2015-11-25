@@ -190,8 +190,37 @@ public class MainWindow extends JFrame {
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                //TODO: iconAdd file
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setMultiSelectionEnabled(false);
+                fileChooser.setAcceptAllFileFilterUsed(true);
+                fileChooser.setApproveButtonText("Upload");
+                int response = fileChooser.showOpenDialog(instance);
+                if (response == JFileChooser.APPROVE_OPTION) {
+                    new SwingWorker<Void, Integer>() {
+                        /**
+                         * Uploads selected file.
+                         */
+                        @Override
+                        protected Void doInBackground() throws Exception {
+                            model.uploadItem(fileChooser.getSelectedFile().toPath());
+                            publish(0);
+                            return null;
+                        }
+
+                        /**
+                         * Adds loaded resources to resource panel.
+                         *
+                         * @param chunks
+                         */
+                        @Override
+                        protected void process(final List<Integer> chunks) {
+                            refreshResourcePane();
+                        }
+                    }.execute();
+
+                }
             }
+
         });
         addressPanel.add(label);
 

@@ -245,4 +245,25 @@ public class ClueApplication implements Serializable {
         emptySelected();
         return true;
     }
+
+    public void uploadItem(Path item) {
+        AppDrive selectedDrive = currentDrive;
+        CFolder parentFolder = currentFolder.peekLast();
+        if(currentDrive == null) {
+            selectedDrive = myDrives.get(roundRobinDrive);
+            roundRobinDrive++;
+            if(roundRobinDrive >= myDrives.size()) {
+                roundRobinDrive = 0;
+            }
+            parentFolder = selectedDrive.getRootFolder();
+
+        }
+        try {
+            selectedDrive.getDrive().uploadFile(parentFolder, item);
+        } catch (ClueException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 }

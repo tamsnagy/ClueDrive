@@ -60,7 +60,7 @@ public class CPath implements Serializable{
         String[] parts = path.split("/");
         for(int i = 1; i < parts.length; i++) {
             if(! (parts[i].matches("^\\.[ \\.a-zA-Z0-9_-]{1,62}$") ||
-                    parts[i].matches("^[a-zA-Z0-9_][ \\.a-zA-Z0-9_-]{0,62}$"))) {
+                    parts[i].matches("^[a-zA-Z0-9_][ \\.a-zA-Z0-9_\\(\\)\\-]{0,62}$"))) {
                 throw new IllegalPathException("Part of remotePath contains illegal character: " + parts[i]);
             }
         }
