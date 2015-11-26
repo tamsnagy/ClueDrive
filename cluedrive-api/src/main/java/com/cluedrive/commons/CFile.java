@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * Created by Tamas on 2015-09-30.
  */
-public class CFile extends CResource{
+public class CFile extends CResource {
     private long fileSize;  // bytes
     private Date lastModified;
 

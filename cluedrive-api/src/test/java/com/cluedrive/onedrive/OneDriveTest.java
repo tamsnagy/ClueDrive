@@ -1,7 +1,9 @@
 package com.cluedrive.onedrive;
 
 import com.cluedrive.ClueDriveTest;
-import com.cluedrive.commons.*;
+import com.cluedrive.commons.CFolder;
+import com.cluedrive.commons.CPath;
+import com.cluedrive.commons.URLUtility;
 import com.cluedrive.drives.OneDrive;
 import com.cluedrive.exception.ClueException;
 import com.cluedrive.onedrive.request.CreateFolderRequest;
@@ -14,18 +16,19 @@ import org.springframework.http.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
  * Created by Tamas on 2015-10-11.
  */
-public class OneDriveTest extends ClueDriveTest{
+public class OneDriveTest extends ClueDriveTest {
+    private static final String LIST_FILTERS = "id,name,size,createdDateTime,lastModifiedDateTime,folder,file";
     private static RestTemplate restTemplate;
     private static URLUtility url;
-    private static final String LIST_FILTERS = "id,name,size,createdDateTime,lastModifiedDateTime,folder,file";
-
     private ObjectMapper MAPPER;
     private HttpHeaders headers;
 
@@ -39,15 +42,15 @@ public class OneDriveTest extends ClueDriveTest{
     @Override
     protected void format() throws ClueException {
         CFolder baseFolderCandidate = null;
-         try {
-             HttpEntity entity = new HttpEntity(headers);
-             String requestUrl = url.base().route("children").toString();
-             ResponseEntity<ChildrenList> rootChildren = restTemplate.exchange(
-                     requestUrl,
-                     HttpMethod.GET,
-                     entity,
-                     ChildrenList.class
-                     );
+        try {
+            HttpEntity entity = new HttpEntity(headers);
+            String requestUrl = url.base().route("children").toString();
+            ResponseEntity<ChildrenList> rootChildren = restTemplate.exchange(
+                    requestUrl,
+                    HttpMethod.GET,
+                    entity,
+                    ChildrenList.class
+            );
             for (Item rootItem : rootChildren.getBody().getValue()) {
                 if (rootItem.getFolder() != null && BASE_FOLDER_NAME.equals(rootItem.getName())) {
                     ResponseEntity<ChildrenList> removableItems = restTemplate.exchange(
@@ -68,30 +71,30 @@ public class OneDriveTest extends ClueDriveTest{
                 }
             }
             if (baseFolderCandidate == null) {
-                    HttpEntity<byte[]> entity2 = new HttpEntity<>(MAPPER.writeValueAsBytes(new CreateFolderRequest(BASE_FOLDER_NAME)), headers);
-                    ResponseEntity<CreateFolderResponse> response2 = restTemplate.exchange(
-                            requestUrl,
-                            HttpMethod.POST,
-                            entity2,
-                            CreateFolderResponse.class);
+                HttpEntity<byte[]> entity2 = new HttpEntity<>(MAPPER.writeValueAsBytes(new CreateFolderRequest(BASE_FOLDER_NAME)), headers);
+                ResponseEntity<CreateFolderResponse> response2 = restTemplate.exchange(
+                        requestUrl,
+                        HttpMethod.POST,
+                        entity2,
+                        CreateFolderResponse.class);
 
-                baseFolderCandidate = new CFolder(CPath.create("/"+response2.getBody().getName()));
+                baseFolderCandidate = new CFolder(CPath.create("/" + response2.getBody().getName()));
             }
-         } catch (HttpClientErrorException e) {
-             System.out.println(e.getStatusCode());
-             System.out.println(e.getMessage());
-             System.out.println(e.getResponseBodyAsString());
-             throw new ClueException(e);
-         } catch (IOException e) {
-             throw new ClueException(e);
-         }
-         baseFolder = baseFolderCandidate;
+        } catch (HttpClientErrorException e) {
+            System.out.println(e.getStatusCode());
+            System.out.println(e.getMessage());
+            System.out.println(e.getResponseBodyAsString());
+            throw new ClueException(e);
+        } catch (IOException e) {
+            throw new ClueException(e);
+        }
+        baseFolder = baseFolderCandidate;
     }
 
     @Override
     protected void driveSpecificSetup() throws IOException {
         Properties properties = new Properties();
-        try(InputStream config = new FileInputStream(Paths.get("build/resources/test/config.properties").toFile())) {
+        try (InputStream config = new FileInputStream(Paths.get("build/resources/test/config.properties").toFile())) {
             properties.load(config);
         }
 

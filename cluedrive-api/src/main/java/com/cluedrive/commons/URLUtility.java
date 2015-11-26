@@ -23,10 +23,10 @@ public class URLUtility {
     }
 
     public URLUtility route(String route) {
-        if(optionAdded) {
+        if (optionAdded) {
             return null;
         }
-        if(pathAdded) {
+        if (pathAdded) {
             urlBuilder.append(":");
         }
         urlBuilder.append("/").append(route);
@@ -35,7 +35,7 @@ public class URLUtility {
     }
 
     public URLUtility segment(CPath path) {
-        if(optionAdded) {
+        if (optionAdded) {
             return null;
         }
         urlBuilder.append(":").append(path.toString());
@@ -43,8 +43,8 @@ public class URLUtility {
         return this;
     }
 
-    public  URLUtility segment(CPath parentPath, String name) {
-        if(optionAdded) {
+    public URLUtility segment(CPath parentPath, String name) {
+        if (optionAdded) {
             return null;
         }
         urlBuilder.append(":").append(parentPath.toString()).append("/").append(name);
@@ -53,7 +53,7 @@ public class URLUtility {
     }
 
     public URLUtility query(String parameter, String value) {
-        if(optionAdded) {
+        if (optionAdded) {
             urlBuilder.append("&");
         } else {
             urlBuilder.append("?");
@@ -64,7 +64,7 @@ public class URLUtility {
     }
 
     public URLUtility filter(String filters) {
-        if(optionAdded) {
+        if (optionAdded) {
             urlBuilder.append("&select=");
         } else {
             urlBuilder.append("?select=");

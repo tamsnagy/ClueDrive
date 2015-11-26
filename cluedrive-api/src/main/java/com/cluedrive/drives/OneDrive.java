@@ -4,7 +4,6 @@ import com.cluedrive.commons.*;
 import com.cluedrive.exception.ClueException;
 import com.cluedrive.exception.InternalErrorException;
 import com.cluedrive.exception.UnAuthorizedException;
-import com.cluedrive.onedrive.request.CreateFileRequest;
 import com.cluedrive.onedrive.request.CreateFolderRequest;
 import com.cluedrive.onedrive.response.ChildrenList;
 import com.cluedrive.onedrive.response.CreateFolderResponse;
@@ -13,34 +12,25 @@ import com.cluedrive.onedrive.response.Item;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.util.ByteArrayBuilder;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.*;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * Created by Tamas on 2015-10-01.
  */
 public class OneDrive extends ClueDrive {
-    private transient RestTemplate restTemplate;
     public static final String URI_BASE = "https://api.onedrive.com/v1.0/drive/special/approot";
     private static final String LIST_FILTERS = "name,size,createdDateTime,lastModifiedDateTime,folder,file";
     private static final String DOWNLOAD_URL_FIELD = "@content.downloadUrl";
+    private transient RestTemplate restTemplate;
     private transient URLUtility url;
     private transient HttpHeaders jsonHeaders;
     private transient ObjectMapper MAPPER;
@@ -170,8 +160,8 @@ public class OneDrive extends ClueDrive {
             multipartHeader.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 
             HttpEntity<byte[]> fileEntity;
-            try(InputStream inputStream = new FileInputStream(localPath.toFile());
-                ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder()) {
+            try (InputStream inputStream = new FileInputStream(localPath.toFile());
+                 ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder()) {
                 int read;
                 int length = 0;
                 byte[] bytes = new byte[4096];
@@ -201,7 +191,7 @@ public class OneDrive extends ClueDrive {
 
     @Override
     public void delete(CResource resource) throws ClueException {
-        try{
+        try {
             HttpEntity entity = new HttpEntity(jsonHeaders);
             restTemplate.exchange(
                     url.base().segment(resource.getRemotePath()).toString(),

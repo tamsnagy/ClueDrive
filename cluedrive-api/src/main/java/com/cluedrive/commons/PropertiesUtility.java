@@ -6,10 +6,10 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-public class PropertiesUtility{
+public class PropertiesUtility {
     public static String applicationProperty(String key) {
         Properties properties = new Properties();
-        try(InputStream inputStream = new FileInputStream(
+        try (InputStream inputStream = new FileInputStream(
                 Paths.get("cluedrive-application/build/resources/main/config.properties").toAbsolutePath().toFile())) {
             properties.load(inputStream);
         } catch (IOException e) {
@@ -20,7 +20,7 @@ public class PropertiesUtility{
 
     public static String apiProperty(String key) {
         Properties properties = new Properties();
-        try(InputStream inputStream = new FileInputStream(
+        try (InputStream inputStream = new FileInputStream(
                 Paths.get("cluedrive-api/build/resources/main/config.properties").toAbsolutePath().toFile())) {
             properties.load(inputStream);
         } catch (IOException e) {

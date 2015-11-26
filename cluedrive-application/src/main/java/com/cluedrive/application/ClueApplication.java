@@ -1,6 +1,9 @@
 package com.cluedrive.application;
 
-import com.cluedrive.commons.*;
+import com.cluedrive.commons.CFolder;
+import com.cluedrive.commons.CPath;
+import com.cluedrive.commons.ClueDrive;
+import com.cluedrive.commons.ClueDriveProvider;
 import com.cluedrive.drives.DropBoxDrive;
 import com.cluedrive.drives.GoogleDrive;
 import com.cluedrive.drives.OneDrive;
@@ -25,17 +28,16 @@ import java.util.List;
 
 public class ClueApplication implements Serializable {
     private static final Path setupOrigin = Paths.get(new JFileChooser().getFileSystemView().getDefaultDirectory().getParentFile().getAbsolutePath() + File.separator + "ClueDrive" + File.separator + "setupData.obj");
-    private static Path localRootPath;
-    private String localRootPathAsString;
-    private List<AppDrive> myDrives = new ArrayList<>();
-    private transient ClueDrive tmpDrive = null;
-    private static MainWindow mainWindow;
     public static CPath currentPath;
     public static AppDrive currentDrive;
     public static java.util.Deque<CFolder> currentFolder;
     public static CPath basePath;
+    private static Path localRootPath;
+    private static MainWindow mainWindow;
     private static List<CResourceUI> selected;
-
+    private String localRootPathAsString;
+    private List<AppDrive> myDrives = new ArrayList<>();
+    private transient ClueDrive tmpDrive = null;
     private int roundRobinDrive;
 
 
@@ -44,24 +46,13 @@ public class ClueApplication implements Serializable {
         initialize();
 
     }
-    private void initialize() {
-        try {
-            basePath = CPath.create("/Cloud");
-            currentPath = basePath;
-            currentDrive = null;
-            currentFolder = new ArrayDeque<>();
-            selected = new ArrayList<>();
-        } catch (IllegalPathException e) {
-            e.printStackTrace();
-        }
-    }
 
     public static void main(String[] args) {
 
         SwingUtilities.invokeLater(() -> {
             try {
                 ClueApplication application = null;
-                if(Files.exists(setupOrigin)) {
+                if (Files.exists(setupOrigin)) {
                     try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(setupOrigin.toFile()))) {
                         application = (ClueApplication) inputStream.readObject();
                         localRootPath = Paths.get(application.localRootPathAsString);
@@ -71,7 +62,7 @@ public class ClueApplication implements Serializable {
                     application = new ClueApplication();
                     application.persist();
                 }
-                if( ! Files.exists(localRootPath)) {
+                if (!Files.exists(localRootPath)) {
                     Files.createDirectories(localRootPath);
                 }
                 application.initialize();
@@ -94,15 +85,6 @@ public class ClueApplication implements Serializable {
         });
     }
 
-    public void persist() {
-        try(ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(setupOrigin.toFile()))) {
-            localRootPathAsString = localRootPath.toString();
-            outputStream.writeObject(this);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private static void createAndShowGUI(ClueApplication application) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -114,12 +96,100 @@ public class ClueApplication implements Serializable {
         mainWindow.setVisible(true);
     }
 
+    public static Path getLocalRootPath() {
+        return localRootPath;
+    }
+
+    public void setLocalRootPath(Path localRootPath) {
+        ClueApplication.localRootPath = localRootPath;
+        this.localRootPathAsString = localRootPath.toString();
+        persist();
+    }
+
+    public static Path getSetupOrigin() {
+        return setupOrigin;
+    }
+
+    public static void refreshMainPanel() {
+        mainWindow.refreshAddressPane();
+        mainWindow.refreshResourcePane();
+    }
+
+    public static void stepInFolder(CFolder folder) {
+        currentFolder.addLast(folder);
+        currentPath = folder.getRemotePath();
+    }
+
+    public static void stepOutFolder() {
+        currentFolder.pollLast();
+        if (currentFolder.isEmpty()) {
+            currentPath = basePath;
+            currentDrive = null;
+        } else {
+            currentPath = currentFolder.peekLast().getRemotePath();
+        }
+    }
+
+    public static void addSelected(CResourceUI resource) {
+        if (selected.isEmpty()) {
+            mainWindow.invertShowRemoveSelectionLabel();
+        }
+        selected.add(resource);
+    }
+
+    public static void removeSelected(CResourceUI resource) {
+        selected.remove(resource);
+        if (selected.isEmpty()) {
+            mainWindow.invertShowRemoveSelectionLabel();
+        }
+    }
+
+    public static void emptySelected() {
+        selected = new ArrayList<>();
+    }
+
+    public static boolean deleteSelectedResources() {
+        if (selected.isEmpty()) {
+            return false;
+        }
+        selected.forEach(resourceUI -> {
+            try {
+                resourceUI.getHolder().getDrive().delete(resourceUI.getResource());
+            } catch (ClueException e) {
+                e.printStackTrace();
+            }
+        });
+        emptySelected();
+        return true;
+    }
+
+    private void initialize() {
+        try {
+            basePath = CPath.create("/Cloud");
+            currentPath = basePath;
+            currentDrive = null;
+            currentFolder = new ArrayDeque<>();
+            selected = new ArrayList<>();
+        } catch (IllegalPathException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void persist() {
+        try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(setupOrigin.toFile()))) {
+            localRootPathAsString = localRootPath.toString();
+            outputStream.writeObject(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void addDriveCandidate(ClueDriveProvider provider) {
         switch (provider) {
             case GOOGLE:
                 int counter = 0;
                 String credentialsPath = new JFileChooser().getFileSystemView().getDefaultDirectory().getParentFile().getAbsolutePath() + java.io.File.separator + "ClueDrive" + java.io.File.separator + "credentials";
-                while(Files.exists(Paths.get(credentialsPath + counter))) {
+                while (Files.exists(Paths.get(credentialsPath + counter))) {
                     counter++;
                 }
                 tmpDrive = new GoogleDrive(Paths.get(credentialsPath + counter));
@@ -132,7 +202,7 @@ public class ClueApplication implements Serializable {
                 break;
         }
         String urlString = tmpDrive.startAuth();
-        if(urlString != null) {
+        if (urlString != null) {
             try {
                 Desktop.getDesktop().browse(new URI(urlString));
             } catch (IOException | URISyntaxException e) {
@@ -160,16 +230,6 @@ public class ClueApplication implements Serializable {
         persist();
     }
 
-    public static Path getLocalRootPath() {
-        return localRootPath;
-    }
-
-    public void setLocalRootPath(Path localRootPath) {
-        ClueApplication.localRootPath = localRootPath;
-        this.localRootPathAsString = localRootPath.toString();
-        persist();
-    }
-
     public List<AppDrive> getMyDrives() {
         return myDrives;
     }
@@ -177,10 +237,6 @@ public class ClueApplication implements Serializable {
     public void setMyDrives(List<AppDrive> myDrives) {
         this.myDrives = myDrives;
         persist();
-    }
-
-    public static Path getSetupOrigin() {
-        return setupOrigin;
     }
 
     public String getLocalRootPathAsString() {
@@ -191,33 +247,13 @@ public class ClueApplication implements Serializable {
         this.localRootPathAsString = localRootPathAsString;
     }
 
-    public static void refreshMainPanel() {
-        mainWindow.refreshAddressPane();
-        mainWindow.refreshResourcePane();
-    }
-
-    public static void stepInFolder(CFolder folder) {
-        currentFolder.addLast(folder);
-        currentPath = folder.getRemotePath();
-    }
-
-    public static void stepOutFolder() {
-        currentFolder.pollLast();
-        if(currentFolder.isEmpty()) {
-            currentPath = basePath;
-            currentDrive = null;
-        } else {
-            currentPath = currentFolder.peekLast().getRemotePath();
-        }
-    }
-
     public void createFolder(String folderName) {
         AppDrive selectedDrive = currentDrive;
         CFolder parentFolder = currentFolder.peekLast();
-        if(currentDrive == null) {
+        if (currentDrive == null) {
             selectedDrive = myDrives.get(roundRobinDrive);
             roundRobinDrive++;
-            if(roundRobinDrive >= myDrives.size()) {
+            if (roundRobinDrive >= myDrives.size()) {
                 roundRobinDrive = 0;
             }
             parentFolder = selectedDrive.getRootFolder();
@@ -230,46 +266,13 @@ public class ClueApplication implements Serializable {
         }
     }
 
-    public static void addSelected(CResourceUI resource) {
-        if(selected.isEmpty()) {
-            mainWindow.invertShowRemoveSelectionLabel();
-        }
-        selected.add(resource);
-    }
-
-    public static void removeSelected(CResourceUI resource) {
-        selected.remove(resource);
-        if(selected.isEmpty()) {
-            mainWindow.invertShowRemoveSelectionLabel();
-        }
-    }
-
-    public static void emptySelected() {
-        selected = new ArrayList<>();
-    }
-
-    public static boolean deleteSelectedResources() {
-        if(selected.isEmpty()) {
-            return false;
-        }
-        selected.forEach(resourceUI -> {
-            try {
-                resourceUI.getHolder().getDrive().delete(resourceUI.getResource());
-            } catch (ClueException e) {
-                e.printStackTrace();
-            }
-        });
-        emptySelected();
-        return true;
-    }
-
     public void uploadItem(Path item) {
         AppDrive selectedDrive = currentDrive;
         CFolder parentFolder = currentFolder.peekLast();
-        if(currentDrive == null) {
+        if (currentDrive == null) {
             selectedDrive = myDrives.get(roundRobinDrive);
             roundRobinDrive++;
-            if(roundRobinDrive >= myDrives.size()) {
+            if (roundRobinDrive >= myDrives.size()) {
                 roundRobinDrive = 0;
             }
             parentFolder = selectedDrive.getRootFolder();

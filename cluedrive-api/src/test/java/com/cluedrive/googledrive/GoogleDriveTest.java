@@ -3,10 +3,8 @@ package com.cluedrive.googledrive;
 import com.cluedrive.ClueDriveTest;
 import com.cluedrive.commons.CFolder;
 import com.cluedrive.commons.CPath;
-import com.cluedrive.commons.CResource;
 import com.cluedrive.drives.GoogleDrive;
 import com.cluedrive.exception.ClueException;
-import com.cluedrive.exception.IllegalPathException;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -22,7 +20,6 @@ import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.ChildReference;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.ParentReference;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,35 +27,39 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
 /**
  * Created by Tamas on 2015-10-01.
  */
-public class GoogleDriveTest  extends ClueDriveTest{
-    /** Application name. */
+public class GoogleDriveTest extends ClueDriveTest {
+    /**
+     * Application name.
+     */
     private static final String APPLICATION_NAME =
             "Drive API Java Quickstart";
 
-    /** Directory to store user credentials for this application. */
+    /**
+     * Directory to store user credentials for this application.
+     */
     private static final java.io.File DATA_STORE_DIR = new java.io.File(
             System.getProperty("user.home"), ".credentials/drive-java-quickstart");
-
-    /** Global instance of the {@link FileDataStoreFactory}. */
-    private static FileDataStoreFactory DATA_STORE_FACTORY;
-
-    /** Global instance of the JSON factory. */
+    /**
+     * Global instance of the JSON factory.
+     */
     private static final JsonFactory JSON_FACTORY =
             JacksonFactory.getDefaultInstance();
-
-    /** Global instance of the HTTP transport. */
-    private static HttpTransport HTTP_TRANSPORT;
-
-    /** Global instance of the scopes required by this quickstart. */
+    /**
+     * Global instance of the scopes required by this quickstart.
+     */
     private static final List<String> SCOPES =
             Arrays.asList(DriveScopes.DRIVE);
+    /**
+     * Global instance of the {@link FileDataStoreFactory}.
+     */
+    private static FileDataStoreFactory DATA_STORE_FACTORY;
+    /**
+     * Global instance of the HTTP transport.
+     */
+    private static HttpTransport HTTP_TRANSPORT;
 
     static {
         try {
@@ -72,6 +73,7 @@ public class GoogleDriveTest  extends ClueDriveTest{
 
     /**
      * Creates an authorized Credential object.
+     *
      * @return an authorized Credential object.
      * @throws IOException
      */
@@ -98,23 +100,23 @@ public class GoogleDriveTest  extends ClueDriveTest{
 
     @Override
     protected void format() throws ClueException {
-        Drive gDrive = ((GoogleDrive)drive).getClient();
+        Drive gDrive = ((GoogleDrive) drive).getClient();
         try {
             CFolder baseFolderCandidate = null;
             String rootId = gDrive.about().get().execute().getRootFolderId();
-            for(ChildReference childRef : gDrive.children().list(rootId).execute().getItems()) {
+            for (ChildReference childRef : gDrive.children().list(rootId).execute().getItems()) {
                 File tmp = gDrive.files().get(childRef.getId()).execute();
-                if(BASE_FOLDER_NAME.equals(tmp.getTitle())) {
+                if (BASE_FOLDER_NAME.equals(tmp.getTitle())) {
                     // /ClueDriveTest folder exists on gDrive. Its id must be saved and it should be emptied
                     baseFolderCandidate = new CFolder(CPath.create("/" + BASE_FOLDER_NAME), tmp.getId());
-                    for(ChildReference removableChildRef : gDrive.children().list(tmp.getId()).execute().getItems()) {
+                    for (ChildReference removableChildRef : gDrive.children().list(tmp.getId()).execute().getItems()) {
                         gDrive.files().delete(removableChildRef.getId()).execute();
                     }
                     continue;
                 }
             }
             // /ClueDriveTest folder was not fount on gDrive it must be created.
-            if(baseFolderCandidate == null) {
+            if (baseFolderCandidate == null) {
                 File body = new File();
                 body.setTitle(BASE_FOLDER_NAME);
                 body.setMimeType(GoogleDrive.FOLDER_MIME_TYPE);
@@ -153,7 +155,7 @@ public class GoogleDriveTest  extends ClueDriveTest{
         body2.setMimeType(GoogleDrive.FOLDER_MIME_TYPE);
         body2.setParents(Arrays.asList(new ParentReference().setId(baseFolder.getId())));
         try {
-            Drive gDrive = ((GoogleDrive)drive).getClient();
+            Drive gDrive = ((GoogleDrive) drive).getClient();
             gDrive.files().insert(body1).execute();
             File folder2 = gDrive.files().insert(body2).execute();
 

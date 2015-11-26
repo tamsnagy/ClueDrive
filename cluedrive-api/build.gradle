@@ -21,9 +21,9 @@ task getAccessToken {
     }
 
     // In case old accessToken expired, simply delete it from config.properties, and you can get new one.
-    if(properties.getProperty(oneDriveTokenField) == null) {
+    if (properties.getProperty(oneDriveTokenField) == null) {
 
-        println "After agreement, copy response address here: "
+
 
         def scope = "wl.signin%20onedrive.readwrite"
         def requestUrl = "https://login.live.com/oauth20_authorize.srf?client_id=" +
@@ -31,6 +31,9 @@ task getAccessToken {
                 "&scope=" + scope +
                 "&response_type=token&redirect_uri=https://login.live.com/oauth20_desktop.srf"
 
+        println "Open following address in a browser:"
+        println requestUrl
+        println "After authorization, copy response address from browser here: "
         java.awt.Desktop.desktop.browse requestUrl.toURI()
         def responseUrl = System.in.newReader().readLine()
 

@@ -17,8 +17,10 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
-import com.google.api.services.drive.model.*;
+import com.google.api.services.drive.model.About;
+import com.google.api.services.drive.model.ChildReference;
 import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.ParentReference;
 
 import javax.swing.*;
 import java.io.*;
@@ -32,9 +34,9 @@ import java.util.*;
  * Created by Tamas on 2015-10-01.
  */
 public class GoogleDrive extends ClueDrive {
+    public static final String FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
     private String setupOrigin;
     private transient Drive client;
-    public static final String FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
 
     public GoogleDrive() {
         provider = ClueDriveProvider.GOOGLE;
@@ -54,7 +56,7 @@ public class GoogleDrive extends ClueDrive {
 
     @Override
     public String startAuth() {
-        try{
+        try {
             // Load client secrets.
             InputStream in = this.getClass().getResourceAsStream("/google_client_secret.json");
             JacksonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -64,9 +66,9 @@ public class GoogleDrive extends ClueDrive {
             // Build flow and trigger user authorization request.
             GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                     httpTransport, jsonFactory, clientSecrets, Arrays.asList(DriveScopes.DRIVE))
-                        .setDataStoreFactory(new FileDataStoreFactory(Paths.get(setupOrigin).toFile()))
-                        .setAccessType("offline")
-                        .build();
+                    .setDataStoreFactory(new FileDataStoreFactory(Paths.get(setupOrigin).toFile()))
+                    .setAccessType("offline")
+                    .build();
 
             Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
             client = new Drive.Builder(
@@ -102,11 +104,11 @@ public class GoogleDrive extends ClueDrive {
             // Access the wanted folder, from root.
             String rootId = client.about().get().execute().getRootFolderId();
             Map<String, File> children = listChildren(rootId);
-            if(! "/".equals(path.toString())) {
+            if (!"/".equals(path.toString())) {
                 String[] pathParts = path.toString().split("/");
 
-                for(int i = 1; i < pathParts.length; i++) {
-                    if(! children.containsKey(pathParts[i])) {
+                for (int i = 1; i < pathParts.length; i++) {
+                    if (!children.containsKey(pathParts[i])) {
                         throw new NotExistingPathException(path);
                     }
                     children = listChildren(children.get(pathParts[i]).getId());
@@ -116,7 +118,7 @@ public class GoogleDrive extends ClueDrive {
             // convert Google's response to common CResources
             for (File file : children.values()) {
                 CPath fileName = CPath.create(path, file.getTitle());
-                if(FOLDER_MIME_TYPE.equals(file.getMimeType())) {
+                if (FOLDER_MIME_TYPE.equals(file.getMimeType())) {
                     responseList.add(new CFolder(fileName, file.getId()));
                 } else {
                     responseList.add(createCFile(file, fileName, null));
@@ -192,12 +194,12 @@ public class GoogleDrive extends ClueDrive {
     public CFile downloadFile(CFile remoteFile, Path localPath) throws ClueException {
         try {
             File file = client.files().get(remoteFile.getId()).execute();
-            if(file.getDownloadUrl() != null && file.getDownloadUrl().length() > 0) {
+            if (file.getDownloadUrl() != null && file.getDownloadUrl().length() > 0) {
                 HttpResponse response = client.getRequestFactory().buildGetRequest(
                         new GenericUrl(file.getDownloadUrl())
                 ).execute();
-                try(InputStream inputStream = response.getContent();
-                    FileOutputStream outputStream = new FileOutputStream(localPath.toFile())) {
+                try (InputStream inputStream = response.getContent();
+                     FileOutputStream outputStream = new FileOutputStream(localPath.toFile())) {
                     int read;
                     byte[] bytes = new byte[4096];
                     while ((read = inputStream.read(bytes)) != -1) {
@@ -216,7 +218,7 @@ public class GoogleDrive extends ClueDrive {
     private Map<String, File> listChildren(String id) throws ClueException {
         Map<String, File> children = new HashMap<>();
         try {
-            for(ChildReference childRef : client.children().list(id).execute().getItems()) {
+            for (ChildReference childRef : client.children().list(id).execute().getItems()) {
                 File tmp = client.files().get(childRef.getId()).execute();
                 children.put(tmp.getTitle(), tmp);
             }
@@ -229,7 +231,7 @@ public class GoogleDrive extends ClueDrive {
     private CFile createCFile(File googleFile, CPath remoteFolder, Path localPath) {
         Date date = (googleFile.getModifiedDate() == null) ? null : new Date(googleFile.getModifiedDate().getValue());
         long size = 0;
-        if(googleFile.keySet().contains("fileSize")) {
+        if (googleFile.keySet().contains("fileSize")) {
             size = googleFile.getFileSize();
         }
         CFile cFile = new CFile(CPath.create(remoteFolder, googleFile.getTitle()), googleFile.getId(), size, date);

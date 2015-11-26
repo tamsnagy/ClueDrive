@@ -15,18 +15,25 @@ public abstract class ClueDrive implements Serializable {
     protected ClueDriveProvider provider;
 
 
-
     public abstract void initialize();
+
     public abstract CAccountInfo getAccountInfo() throws ClueException;
+
     public abstract List<CResource> list(CPath path) throws ClueException;
+
     public abstract CFolder createFolder(CFolder parentFolder, String folderName) throws ClueException;
+
     public abstract CFolder getRootFolder() throws ClueException;
+
     public abstract CFile uploadFile(CFolder remoteFolder, Path localPath) throws ClueException, FileNotFoundException;
+
     public abstract void delete(CResource resource) throws ClueException;
+
     public abstract CFile downloadFile(CFile remoteFile, Path localPath) throws ClueException;
 
     /**
      * Starts OAuth2 flow.
+     *
      * @return Url, where access can be granted to application.
      */
     public abstract String startAuth();
@@ -35,11 +42,12 @@ public abstract class ClueDrive implements Serializable {
         this.accessToken = accessToken;
     }
 
-    public void setAccessToken(String token) {
-        accessToken = token;
-    }
     public String getAccessToken() {
         return accessToken;
+    }
+
+    public void setAccessToken(String token) {
+        accessToken = token;
     }
 
     public ClueDriveProvider getProvider() {

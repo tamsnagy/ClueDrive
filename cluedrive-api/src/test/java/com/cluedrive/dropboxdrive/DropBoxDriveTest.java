@@ -1,9 +1,8 @@
 package com.cluedrive.dropboxdrive;
 
 import com.cluedrive.ClueDriveTest;
-import com.cluedrive.commons.*;
+import com.cluedrive.commons.CPath;
 import com.cluedrive.drives.DropBoxDrive;
-
 import com.cluedrive.exception.ClueException;
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxEntry;
@@ -13,13 +12,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 /**
  * Created by Tamas on 2015-09-24.
  */
-public class DropBoxDriveTest  extends ClueDriveTest {
+public class DropBoxDriveTest extends ClueDriveTest {
 
     protected void format() throws ClueException {
         try {

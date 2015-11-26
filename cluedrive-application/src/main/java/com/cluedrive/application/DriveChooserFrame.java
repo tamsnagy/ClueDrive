@@ -6,31 +6,29 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.*;
+import java.util.ArrayList;
 
 /**
  * Created by Tamas on 2015-11-18.
  */
 public class DriveChooserFrame extends JDialog {
-    private MainWindow mainFrame;
-    private ClueDriveProvider selectedProvider = null;
-    private java.util.List<JLabel> providerLabels = new ArrayList<>();
-    private JLabel tokenLabel;
-    private ImageIcon iconLoad;
     private static final String SELECTOR_PANEL = "SelectorPanel";
     private static final String TOKEN_PANEL = "TokenPanel";
     private static final String LOAD_PANEL = "LaodPanel";
     private static final String DROPBOX_TOKEN_TEXT = "<html><center>Insert here the token you got<br/> from DropBox:</center></html>";
     private static final String ONEDRIVE_TOKEN_TEXT = "<html><center>Insert here the response url <br/> from your browsers addressBar:</center></html>";
     private static final Color selectedColor = new Color(38, 255, 107);
-    public static ImageIcon iconDrive, iconDropbox, iconOneDrive;
+    public static ImageIcon iconDrive, iconDropbox, iconOneDrive, iconLoad;
+    private MainWindow mainFrame;
+    private ClueDriveProvider selectedProvider = null;
+    private java.util.List<JLabel> providerLabels = new ArrayList<>();
+    private JLabel tokenLabel;
 
-    public DriveChooserFrame(MainWindow mainFrame, ImageIcon iconLoad) {
+    public DriveChooserFrame(MainWindow mainFrame) {
         super(mainFrame, true);
         this.mainFrame = mainFrame;
-        this.iconLoad = iconLoad;
         setTitle("Add new Drive");
-        setSize(350,300);
+        setSize(350, 300);
         setResizable(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -38,7 +36,7 @@ public class DriveChooserFrame extends JDialog {
         this.add(createSelectorPanel(), SELECTOR_PANEL);
         this.add(createTokenPanel(), TOKEN_PANEL);
         this.add(createLoadPanel(), LOAD_PANEL);
-        ((CardLayout)this.getContentPane().getLayout()).show(this.getContentPane(), SELECTOR_PANEL);
+        ((CardLayout) this.getContentPane().getLayout()).show(this.getContentPane(), SELECTOR_PANEL);
         this.setVisible(true);
     }
 
@@ -72,19 +70,19 @@ public class DriveChooserFrame extends JDialog {
         JButton button = new JButton("Finish");
         button.addActionListener(actionEvent -> {
             String token = tokenTextField.getText();
-            if("".equals(token)) {
+            if ("".equals(token)) {
                 JOptionPane.showMessageDialog(this, "Paste the token from your browser.",
                         "Missing token", JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            if(ClueDriveProvider.ONEDRIVE.equals(selectedProvider)) {
+            if (ClueDriveProvider.ONEDRIVE.equals(selectedProvider)) {
                 int tokenBegin = token.indexOf("access_token=") + "access_token=".length();
                 int tokenEnd = token.indexOf("&token_type");
                 token = token.substring(tokenBegin, tokenEnd).replace("%2b", " ");
             }
-            ((CardLayout)this.getContentPane().getLayout()).show(this.getContentPane(), LOAD_PANEL);
+            ((CardLayout) this.getContentPane().getLayout()).show(this.getContentPane(), LOAD_PANEL);
             final String finalToken = token;
-            new SwingWorker<Void, Integer>(){
+            new SwingWorker<Void, Integer>() {
 
                 @Override
                 protected Void doInBackground() throws Exception {
@@ -137,13 +135,13 @@ public class DriveChooserFrame extends JDialog {
 
         JButton button = new JButton("Authorize");
         button.setAlignmentX(CENTER_ALIGNMENT);
-        button.addActionListener(actionEvent->{
-            if(selectedProvider == null) {
+        button.addActionListener(actionEvent -> {
+            if (selectedProvider == null) {
                 JOptionPane.showMessageDialog(this, "Please select a provider by clicking on their icon.",
                         "Select Cloud provider", JOptionPane.WARNING_MESSAGE);
             } else {
                 mainFrame.getModel().addDriveCandidate(selectedProvider);
-                switch(selectedProvider){
+                switch (selectedProvider) {
                     case DROPBOX:
                         tokenLabel.setText(DROPBOX_TOKEN_TEXT);
                         break;
@@ -155,7 +153,7 @@ public class DriveChooserFrame extends JDialog {
                         dispose();
                         return;
                 }
-                ((CardLayout)this.getContentPane().getLayout()).show(this.getContentPane(), TOKEN_PANEL);
+                ((CardLayout) this.getContentPane().getLayout()).show(this.getContentPane(), TOKEN_PANEL);
             }
         });
         card.add(button);
@@ -175,10 +173,10 @@ public class DriveChooserFrame extends JDialog {
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                for(JLabel providerLabel: providerLabels) {
+                for (JLabel providerLabel : providerLabels) {
                     providerLabel.setBackground(null);
                 }
-                if(setSelectedProvider(ClueDriveProvider.GOOGLE)) {
+                if (setSelectedProvider(ClueDriveProvider.GOOGLE)) {
                     e.getComponent().setBackground(selectedColor);
                 }
             }
@@ -193,10 +191,10 @@ public class DriveChooserFrame extends JDialog {
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                for(JLabel providerLabel: providerLabels) {
+                for (JLabel providerLabel : providerLabels) {
                     providerLabel.setBackground(null);
                 }
-                if(setSelectedProvider(ClueDriveProvider.ONEDRIVE)) {
+                if (setSelectedProvider(ClueDriveProvider.ONEDRIVE)) {
                     e.getComponent().setBackground(selectedColor);
                 }
             }
@@ -211,10 +209,10 @@ public class DriveChooserFrame extends JDialog {
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                for(JLabel providerLabel: providerLabels) {
+                for (JLabel providerLabel : providerLabels) {
                     providerLabel.setBackground(null);
                 }
-                if(setSelectedProvider(ClueDriveProvider.DROPBOX)) {
+                if (setSelectedProvider(ClueDriveProvider.DROPBOX)) {
                     e.getComponent().setBackground(selectedColor);
                 }
             }
@@ -228,7 +226,7 @@ public class DriveChooserFrame extends JDialog {
     }
 
     private boolean setSelectedProvider(ClueDriveProvider provider) {
-        if(selectedProvider == provider) {
+        if (selectedProvider == provider) {
             selectedProvider = null;
             return false;
         }
@@ -236,7 +234,7 @@ public class DriveChooserFrame extends JDialog {
         return true;
     }
 
-    public void closeWindow(){
+    public void closeWindow() {
         dispose();
     }
 }

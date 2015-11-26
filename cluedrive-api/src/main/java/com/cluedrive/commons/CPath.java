@@ -7,10 +7,10 @@ import java.io.Serializable;
 /**
  * Created by Tamas on 2015-09-30.
  */
-public class CPath implements Serializable{
+public class CPath implements Serializable {
     private String absolutePath;
 
-    private CPath(String absolutePath){
+    private CPath(String absolutePath) {
         this.absolutePath = absolutePath;
     }
 
@@ -21,7 +21,7 @@ public class CPath implements Serializable{
 
     public static CPath create(CPath path, String leaf) {
         String result;
-        if(path.absolutePath.endsWith("/")) {
+        if (path.absolutePath.endsWith("/")) {
             result = path.absolutePath + leaf;
         } else {
             result = path.absolutePath + "/" + leaf;
@@ -29,14 +29,30 @@ public class CPath implements Serializable{
         return new CPath(result);
     }
 
+    protected static void validatePath(String path) throws IllegalPathException {
+        if (path == null) {
+            throw new IllegalPathException("Path cannot be null");
+        }
+        if (path.charAt(0) != '/') {
+            throw new IllegalPathException("Path must begin with '/'");
+        }
+        String[] parts = path.split("/");
+        for (int i = 1; i < parts.length; i++) {
+            if (!(parts[i].matches("^\\.[ \\.a-zA-Z0-9_-]{1,62}$") ||
+                    parts[i].matches("^[a-zA-Z0-9_][ \\.a-zA-Z0-9_\\(\\)\\-]{0,62}$"))) {
+                throw new IllegalPathException("Part of remotePath contains illegal character: " + parts[i]);
+            }
+        }
+    }
+
     public String getLeaf() {
-        if(isRootPath())
+        if (isRootPath())
             return "/";
         return absolutePath.substring(absolutePath.lastIndexOf('/') + 1);
     }
 
-    public CPath getParent(){
-        if(absolutePath.indexOf('/') == absolutePath.lastIndexOf('/'))
+    public CPath getParent() {
+        if (absolutePath.indexOf('/') == absolutePath.lastIndexOf('/'))
             return new CPath("/");
         return new CPath(absolutePath.substring(0, absolutePath.lastIndexOf('/')));
     }
@@ -48,22 +64,6 @@ public class CPath implements Serializable{
     @Override
     public String toString() {
         return absolutePath;
-    }
-
-    protected static void validatePath(String path) throws IllegalPathException {
-        if(path == null) {
-            throw new IllegalPathException("Path cannot be null");
-        }
-        if(path.charAt(0) != '/') {
-            throw new IllegalPathException("Path must begin with '/'");
-        }
-        String[] parts = path.split("/");
-        for(int i = 1; i < parts.length; i++) {
-            if(! (parts[i].matches("^\\.[ \\.a-zA-Z0-9_-]{1,62}$") ||
-                    parts[i].matches("^[a-zA-Z0-9_][ \\.a-zA-Z0-9_\\(\\)\\-]{0,62}$"))) {
-                throw new IllegalPathException("Part of remotePath contains illegal character: " + parts[i]);
-            }
-        }
     }
 
     @Override

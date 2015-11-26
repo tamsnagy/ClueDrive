@@ -1,7 +1,5 @@
 apply plugin: 'application'
 
-mainClassName = "com.cluedrive."
-
 dependencies {
-    compile project (':cluedrive-api')
+    compile project(':cluedrive-api')
 }

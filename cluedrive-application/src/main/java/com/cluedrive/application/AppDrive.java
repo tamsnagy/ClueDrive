@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * Created by Tamas on 2015-11-25.
  */
-public class AppDrive implements Serializable{
+public class AppDrive implements Serializable {
     private ClueDrive drive;
     private CFolder rootFolder;
     private transient CAccountInfo accountInfo;

@@ -11,7 +11,7 @@ public abstract class CResource implements Serializable {
     protected CPath remotePath;
     protected Path localPath;
 
-    public CResource(CPath remotePath){
+    public CResource(CPath remotePath) {
         this.remotePath = remotePath;
     }
 
@@ -21,6 +21,7 @@ public abstract class CResource implements Serializable {
     }
 
     public abstract boolean isFolder();
+
     public abstract boolean isFile();
 
     public CPath getRemotePath() {

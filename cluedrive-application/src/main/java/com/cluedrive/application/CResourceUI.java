@@ -3,7 +3,6 @@ package com.cluedrive.application;
 import com.cluedrive.commons.CFile;
 import com.cluedrive.commons.CFolder;
 import com.cluedrive.commons.CResource;
-import com.cluedrive.commons.ClueDrive;
 import com.cluedrive.exception.ClueException;
 
 import javax.swing.*;
@@ -20,13 +19,12 @@ import java.nio.file.Paths;
  * Created by Tamas on 2015-11-19.
  */
 public class CResourceUI extends JPanel {
-    private CResource resource;
-    private AppDrive holder;
-    private JLabel tickLabel;
-
     public static ImageIcon iconFolder;
     public static ImageIcon iconFile;
     public static ImageIcon iconTick;
+    private CResource resource;
+    private AppDrive holder;
+    private JLabel tickLabel;
 
     public CResourceUI(CResource resource, AppDrive holder) {
         this.holder = holder;
@@ -38,7 +36,7 @@ public class CResourceUI extends JPanel {
         JLabel label = new JLabel();
         label.setOpaque(false);
         label.setAlignmentX(CENTER_ALIGNMENT);
-        if(resource.isFolder()) {
+        if (resource.isFolder()) {
             label.setIcon(iconFolder);
         } else {
             label.setIcon(iconFile);
@@ -62,23 +60,23 @@ public class CResourceUI extends JPanel {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(e.getClickCount() == 1) {
-                    if(tickLabel.isVisible()) {
+                if (e.getClickCount() == 1) {
+                    if (tickLabel.isVisible()) {
                         tickLabel.setVisible(false);
-                        ClueApplication.removeSelected((CResourceUI)e.getComponent());
+                        ClueApplication.removeSelected((CResourceUI) e.getComponent());
                     } else {
                         tickLabel.setVisible(true);
-                        ClueApplication.addSelected((CResourceUI)e.getComponent());
+                        ClueApplication.addSelected((CResourceUI) e.getComponent());
                     }
                 }
-                if(e.getClickCount() == 2) {
-                    if(resource.isFolder()) {
+                if (e.getClickCount() == 2) {
+                    if (resource.isFolder()) {
                         ClueApplication.emptySelected();
                         ClueApplication.currentDrive = holder;
-                        ClueApplication.stepInFolder((CFolder)resource);
+                        ClueApplication.stepInFolder((CFolder) resource);
                         ClueApplication.refreshMainPanel();
                     } else {
-                        if(JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(e.getComponent().getParent(),
+                        if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(e.getComponent().getParent(),
                                 "Do you want to save file for offline access and open?",
                                 "Save file",
                                 JOptionPane.YES_NO_OPTION,
@@ -114,7 +112,7 @@ public class CResourceUI extends JPanel {
         return holder;
     }
 
-    public void hideSelected(){
+    public void hideSelected() {
         tickLabel.setVisible(false);
         this.repaint();
     }

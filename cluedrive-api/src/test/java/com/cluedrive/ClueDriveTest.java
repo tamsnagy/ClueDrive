@@ -20,14 +20,13 @@ import static org.junit.Assert.*;
  * Created by Tamas on 2015-11-11.
  */
 public abstract class ClueDriveTest {
-    protected ClueDrive drive;
-
     protected static final String BASE_FOLDER_NAME = "ClueDriveTest";
+    protected ClueDrive drive;
     protected CFolder baseFolder;
 
     public ClueDriveTest() {
         try {
-            baseFolder = new CFolder(CPath.create("/"+ BASE_FOLDER_NAME));
+            baseFolder = new CFolder(CPath.create("/" + BASE_FOLDER_NAME));
         } catch (IllegalPathException e) {
             System.err.println("Tests cannot run. Base folder is not set up correctly");
         }
@@ -38,7 +37,6 @@ public abstract class ClueDriveTest {
     protected abstract void driveSpecificSetup() throws IOException;
 
     protected abstract void listSetup() throws ClueException;
-
 
 
     @Before
@@ -63,7 +61,7 @@ public abstract class ClueDriveTest {
         assertEquals(2, resources.size());
         int subFolder1 = drive.list(resources.get(0).getRemotePath()).size();
         int subFolder2 = drive.list(resources.get(1).getRemotePath()).size();
-        assertTrue( (0 == subFolder1 && 1 == subFolder2) ||
+        assertTrue((0 == subFolder1 && 1 == subFolder2) ||
                 (1 == subFolder1 && 0 == subFolder2));
     }
 

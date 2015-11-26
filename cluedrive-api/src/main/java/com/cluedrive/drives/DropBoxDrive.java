@@ -55,7 +55,7 @@ public class DropBoxDrive extends ClueDrive {
     }
 
     @Override
-    public CAccountInfo getAccountInfo() throws ClueException{
+    public CAccountInfo getAccountInfo() throws ClueException {
         try {
             DbxAccountInfo accountInfo = client.getAccountInfo();
             return new CAccountInfo(accountInfo.displayName, accountInfo.quota.total);
@@ -69,11 +69,11 @@ public class DropBoxDrive extends ClueDrive {
         try {
             List<CResource> entries = new ArrayList<>();
             DbxEntry.WithChildren dbxEntries = client.getMetadataWithChildren(path.toString());
-            if(dbxEntries == null) {
+            if (dbxEntries == null) {
                 throw new NotExistingPathException(path);
             }
-            for(DbxEntry dbxEntry: dbxEntries.children) {
-                if(dbxEntry.isFolder()) {
+            for (DbxEntry dbxEntry : dbxEntries.children) {
+                if (dbxEntry.isFolder()) {
                     entries.add(new CFolder(CPath.create(dbxEntry.path)));
                 } else if (dbxEntry.isFile()) {
                     DbxEntry.File file = dbxEntry.asFile();
@@ -119,7 +119,7 @@ public class DropBoxDrive extends ClueDrive {
     public CFile uploadFile(CFolder remoteParent, Path localPath) throws ClueException, FileNotFoundException {
         CPath remoteTarget = CPath.create(remoteParent.getRemotePath(), localPath.getFileName().toString());
         File file = localPath.toFile();
-        try(FileInputStream inputStream = new FileInputStream(file)) {
+        try (FileInputStream inputStream = new FileInputStream(file)) {
             DbxEntry.File uploadedFile = client.uploadFile(remoteTarget.toString(),
                     DbxWriteMode.add(), file.length(), inputStream);
             CFile cFile = new CFile(CPath.create(uploadedFile.path), uploadedFile.numBytes, uploadedFile.lastModified);
@@ -141,13 +141,13 @@ public class DropBoxDrive extends ClueDrive {
 
     @Override
     public CFile downloadFile(CFile remoteFile, Path localPath) throws ClueException {
-        try(FileOutputStream outputStream = new FileOutputStream(localPath.toFile())) {
+        try (FileOutputStream outputStream = new FileOutputStream(localPath.toFile())) {
             DbxEntry.File downloadedFile = client.getFile(remoteFile.getRemotePath().toString(),
                     null, outputStream);
             CFile cFile = new CFile(CPath.create(downloadedFile.path), downloadedFile.numBytes, downloadedFile.lastModified);
             cFile.setLocalPath(localPath);
             return cFile;
-        } catch (DbxException| IOException e) {
+        } catch (DbxException | IOException e) {
             throw new ClueException(e);
         }
     }
