@@ -183,6 +183,7 @@ public class MainWindow extends JFrame {
         setTitle("ClueDrive Application");
         setSize(1100, 650);
         setMinimumSize(new Dimension(700, 400));
+        setLocationRelativeTo(null);
 
         setJMenuBar(initializedMenuBar());
 
@@ -308,7 +309,7 @@ public class MainWindow extends JFrame {
      */
     private void initializeAddressPanel() {
         addressPanel = new JPanel();
-        addressPanel.setAlignmentY(LEFT_ALIGNMENT);
+        addressPanel.setAlignmentY(CENTER_ALIGNMENT);
         addressPanel.setLayout(new BoxLayout(addressPanel, BoxLayout.LINE_AXIS));
 
         addressPanel.add(Box.createRigidArea(new Dimension(20, 20)));
@@ -379,7 +380,7 @@ public class MainWindow extends JFrame {
                         /**
                          * Adds loaded resources to resource panel.
                          *
-                         * @param chunks
+                         * @param chunks Dummy value
                          */
                         @Override
                         protected void process(final List<Integer> chunks) {
@@ -489,7 +490,7 @@ public class MainWindow extends JFrame {
 
             /**
              * Adds loaded resources to resource panel.
-             * @param chunks
+             * @param chunks Dummy value
              */
             @Override
             protected void process(final List<CResourceUI> chunks) {
@@ -523,7 +524,7 @@ public class MainWindow extends JFrame {
     /**
      * Initializes the menu bar.
      *
-     * @return
+     * @return The menu bar.
      */
     private JMenuBar initializedMenuBar() {
         JMenuBar menuBar = new JMenuBar();
@@ -557,9 +558,7 @@ public class MainWindow extends JFrame {
 
         fileMenu.addSeparator();
         menuItem = new JMenuItem("Exit");
-        menuItem.addActionListener(actionEvent -> {
-            this.dispose();
-        });
+        menuItem.addActionListener(actionEvent -> this.dispose());
         fileMenu.add(menuItem);
 
 

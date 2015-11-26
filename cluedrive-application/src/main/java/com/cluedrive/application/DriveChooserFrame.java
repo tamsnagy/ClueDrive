@@ -9,28 +9,62 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 /**
- * Created by Tamas on 2015-11-18.
+ * The frame which shows and controls the add new Drive flow.
  */
 public class DriveChooserFrame extends JDialog {
+    /**
+     * Identifier to card layout
+     */
     private static final String SELECTOR_PANEL = "SelectorPanel";
+    /**
+     * Identifier to card layout
+     */
     private static final String TOKEN_PANEL = "TokenPanel";
+    /**
+     * Identifier to card layout
+     */
     private static final String LOAD_PANEL = "LaodPanel";
+    /**
+     * String constant shown at Dropbox registering.
+     */
     private static final String DROPBOX_TOKEN_TEXT = "<html><center>Insert here the token you got<br/> from DropBox:</center></html>";
+    /**
+     * String constant shown at Onedrive registering.
+     */
     private static final String ONEDRIVE_TOKEN_TEXT = "<html><center>Insert here the response url <br/> from your browsers addressBar:</center></html>";
+    /**
+     * Color of selected drives background.
+     */
     private static final Color selectedColor = new Color(38, 255, 107);
+    /**
+     * Icons used by the drive chooser.
+     */
     public static ImageIcon iconDrive, iconDropbox, iconOneDrive, iconLoad;
-    private MainWindow mainFrame;
+    /**
+     * Link to the applications model.
+     */
+    private ClueApplication model;
+    /**
+     * The selected cloud providers type
+     */
     private ClueDriveProvider selectedProvider = null;
-    private java.util.List<JLabel> providerLabels = new ArrayList<>();
+    /**
+     * Label used to hold text for asking token after different providers registration.
+     */
     private JLabel tokenLabel;
 
+    /**
+     * Initializes and shows the Drive chooser frame.
+     * @param mainFrame The patent Frame of this frame.
+     */
     public DriveChooserFrame(MainWindow mainFrame) {
         super(mainFrame, true);
-        this.mainFrame = mainFrame;
+        this.model = mainFrame.getModel();
         setTitle("Add new Drive");
         setSize(350, 300);
         setResizable(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(mainFrame);
 
         this.getContentPane().setLayout(new CardLayout());
         this.add(createSelectorPanel(), SELECTOR_PANEL);
@@ -40,6 +74,10 @@ public class DriveChooserFrame extends JDialog {
         this.setVisible(true);
     }
 
+    /**
+     * Initializes the load panel.
+     * @return Load panel.
+     */
     private JPanel createLoadPanel() {
         JPanel card = new JPanel();
         card.setLayout(new BorderLayout());
@@ -48,6 +86,10 @@ public class DriveChooserFrame extends JDialog {
         return card;
     }
 
+    /**
+     * Initializes the token ask panel.
+     * @return token panel.
+     */
     private JPanel createTokenPanel() {
         JPanel card = new JPanel();
         card.setLayout(new BoxLayout(card, BoxLayout.PAGE_AXIS));
@@ -62,7 +104,7 @@ public class DriveChooserFrame extends JDialog {
 
         JTextField tokenTextField = new JTextField();
         tokenTextField.setAlignmentX(CENTER_ALIGNMENT);
-        tokenTextField.setMaximumSize(new Dimension(220, 20));
+        tokenTextField.setMaximumSize(new Dimension(320, 20));
         card.add(tokenTextField);
 
         card.add(Box.createVerticalGlue());
@@ -86,7 +128,7 @@ public class DriveChooserFrame extends JDialog {
 
                 @Override
                 protected Void doInBackground() throws Exception {
-                    mainFrame.getModel().addAccessTokenToTmpDrive(finalToken);
+                    model.addAccessTokenToTmpDrive(finalToken);
                     publish(0);
                     return null;
                 }
@@ -107,6 +149,10 @@ public class DriveChooserFrame extends JDialog {
         return card;
     }
 
+    /**
+     * Initializes the add new drive panel.
+     * @return selector panel.
+     */
     private JPanel createSelectorPanel() {
         JPanel card = new JPanel();
         card.setLayout(new BoxLayout(card, BoxLayout.PAGE_AXIS));
@@ -140,7 +186,7 @@ public class DriveChooserFrame extends JDialog {
                 JOptionPane.showMessageDialog(this, "Please select a provider by clicking on their icon.",
                         "Select Cloud provider", JOptionPane.WARNING_MESSAGE);
             } else {
-                mainFrame.getModel().addDriveCandidate(selectedProvider);
+                model.addDriveCandidate(selectedProvider);
                 switch (selectedProvider) {
                     case DROPBOX:
                         tokenLabel.setText(DROPBOX_TOKEN_TEXT);
@@ -149,7 +195,7 @@ public class DriveChooserFrame extends JDialog {
                         tokenLabel.setText(ONEDRIVE_TOKEN_TEXT);
                         break;
                     case GOOGLE:
-                        mainFrame.getModel().addAccessTokenToTmpDrive(null);
+                        model.addAccessTokenToTmpDrive(null);
                         dispose();
                         return;
                 }
@@ -162,7 +208,12 @@ public class DriveChooserFrame extends JDialog {
         return card;
     }
 
+    /**
+     * Initializes the provider selector panel.
+     * @return the providers panel.
+     */
     private JPanel createCloudPanel() {
+        java.util.List<JLabel> providerLabels = new ArrayList<>();
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 
@@ -225,6 +276,11 @@ public class DriveChooserFrame extends JDialog {
         return panel;
     }
 
+    /**
+     * Sets the selected provider.
+     * @param provider The selected provider to be set.
+     * @return True if selection happened. False if previously selected provider was selected again.
+     */
     private boolean setSelectedProvider(ClueDriveProvider provider) {
         if (selectedProvider == provider) {
             selectedProvider = null;
@@ -234,6 +290,9 @@ public class DriveChooserFrame extends JDialog {
         return true;
     }
 
+    /**
+     * Closes the drive chooser frame.
+     */
     public void closeWindow() {
         dispose();
     }
