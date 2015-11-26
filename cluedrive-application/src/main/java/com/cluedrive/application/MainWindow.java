@@ -36,7 +36,14 @@ public class MainWindow extends JFrame {
     public JLabel removeSelectionIcon;
     public JLabel removeSelectionText;
 
-    private java.util.List<Color> colorList = Arrays.asList(Color.GREEN, Color.ORANGE, Color.MAGENTA, Color.CYAN);
+    private java.util.List<Color> colorList = Arrays.asList(
+            new Color(141, 206, 234),
+            new Color(234, 176, 144),
+            new Color(117, 234, 35),
+            new Color(234, 232, 70),
+            new Color(168, 87, 234),
+            new Color(234, 85, 63)
+    );
 
     private MainWindow(ClueApplication model) {
         iconAdd = new ImageIcon("cluedrive-application/build/resources/main/images/add.png");
@@ -77,7 +84,7 @@ public class MainWindow extends JFrame {
      */
     private JScrollPane initializeDrivePane() {
         drivesPanel = new JPanel();
-        drivesPanel.setBackground(Color.BLUE);
+        drivesPanel.setBackground(new Color(253, 253, 254));
         drivesPanel.setLayout(new BoxLayout(drivesPanel, BoxLayout.PAGE_AXIS));
 
         // Total size panel
@@ -118,7 +125,9 @@ public class MainWindow extends JFrame {
         JLabel iconLabel = new JLabel();
         iconLabel.setIcon(iconAdd);
         panel.add(iconLabel);
+        panel.setBackground(new Color(180, 229, 29));
         label = new JLabel("Add new Drive for more space");
+        label.setForeground(new Color(236, 23, 31));
         label.setHorizontalTextPosition(SwingConstants.LEADING);
         panel.add(label);
         panel.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
@@ -555,6 +564,9 @@ public class MainWindow extends JFrame {
         JScrollPane scrollPane = new JScrollPane(resourcePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setMinimumSize(new Dimension(500, 400));
         mainPanel.add(scrollPane);
+        if(model.getMyDrives().isEmpty()){
+            disableComponents(mainPanel);
+        }
         splitPane.setRightComponent(mainPanel);
     }
 

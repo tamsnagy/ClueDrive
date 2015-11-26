@@ -22,6 +22,7 @@ public class DriveChooserFrame extends JDialog {
     private static final String LOAD_PANEL = "LaodPanel";
     private static final String DROPBOX_TOKEN_TEXT = "<html><center>Insert here the token you got<br/> from DropBox:</center></html>";
     private static final String ONEDRIVE_TOKEN_TEXT = "<html><center>Insert here the response url <br/> from your browsers addressBar:</center></html>";
+    private static final Color selectedColor = new Color(38, 255, 107);
     public static ImageIcon iconDrive, iconDropbox, iconOneDrive;
 
     public DriveChooserFrame(MainWindow mainFrame, ImageIcon iconLoad) {
@@ -178,7 +179,7 @@ public class DriveChooserFrame extends JDialog {
                     providerLabel.setBackground(null);
                 }
                 if(setSelectedProvider(ClueDriveProvider.GOOGLE)) {
-                    e.getComponent().setBackground(Color.MAGENTA);
+                    e.getComponent().setBackground(selectedColor);
                 }
             }
         });
@@ -196,7 +197,7 @@ public class DriveChooserFrame extends JDialog {
                     providerLabel.setBackground(null);
                 }
                 if(setSelectedProvider(ClueDriveProvider.ONEDRIVE)) {
-                    e.getComponent().setBackground(Color.MAGENTA);
+                    e.getComponent().setBackground(selectedColor);
                 }
             }
         });
@@ -214,7 +215,7 @@ public class DriveChooserFrame extends JDialog {
                     providerLabel.setBackground(null);
                 }
                 if(setSelectedProvider(ClueDriveProvider.DROPBOX)) {
-                    e.getComponent().setBackground(Color.MAGENTA);
+                    e.getComponent().setBackground(selectedColor);
                 }
             }
         });

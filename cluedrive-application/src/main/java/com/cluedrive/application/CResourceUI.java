@@ -31,10 +31,12 @@ public class CResourceUI extends JPanel {
     public CResourceUI(CResource resource, AppDrive holder) {
         this.holder = holder;
         this.resource = resource;
+        this.setOpaque(false);
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         this.setMinimumSize(new Dimension(60, 60));
 
         JLabel label = new JLabel();
+        label.setOpaque(false);
         label.setAlignmentX(CENTER_ALIGNMENT);
         if(resource.isFolder()) {
             label.setIcon(iconFolder);
@@ -45,12 +47,14 @@ public class CResourceUI extends JPanel {
 
         tickLabel = new JLabel(iconTick);
         tickLabel.setAlignmentX(CENTER_ALIGNMENT);
+        tickLabel.setOpaque(false);
         tickLabel.setVisible(false);
 
         this.add(tickLabel);
 
         label = new JLabel(resource.getName());
         label.setAlignmentX(CENTER_ALIGNMENT);
+        label.setOpaque(false);
         this.add(label);
 
         this.add(Box.createVerticalGlue());
