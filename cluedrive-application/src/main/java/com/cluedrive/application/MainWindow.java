@@ -73,13 +73,45 @@ public class MainWindow extends JFrame {
         drivesPanel.setBackground(Color.BLUE);
         drivesPanel.setLayout(new BoxLayout(drivesPanel, BoxLayout.PAGE_AXIS));
 
+        // Total size panel
         JPanel panel = new JPanel();
+        panel.setMaximumSize(new Dimension(200, 40));
+        panel.setLayout(new BoxLayout(panel ,BoxLayout.LINE_AXIS));
+        panel.add(Box.createRigidArea(new Dimension(30, 40)));
+        JLabel label = new JLabel("<html><b>Total size:</b></html>");
+        label.setAlignmentY(CENTER_ALIGNMENT);
+        label.setHorizontalTextPosition(SwingConstants.LEADING);
+        panel.add(label);
+        panel.add(Box.createRigidArea(new Dimension(10, 40)));
+        long bytes = 0;
+        for(AppDrive drive: model.getMyDrives()) {
+            bytes += drive.getAccountInfo().getTotal();
+        }
+        double GBytes = bytes / 1024.0 / 1024 / 1024; //GB
+        label = new JLabel(String.format("<html><b>%.2f</b></html>",GBytes));
+        label.setAlignmentY(CENTER_ALIGNMENT);
+        panel.add(label);
+        panel.add(Box.createRigidArea(new Dimension(10, 40)));
+        label = new JLabel("<html><b>GB</b></html>");
+        label.setAlignmentY(CENTER_ALIGNMENT);
+        panel.add(label);
+        panel.add(Box.createRigidArea(new Dimension(10, 40)));
+
+        panel.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        panel.setAlignmentX(LEFT_ALIGNMENT);
+        panel.add(Box.createHorizontalGlue());
+        panel.add(Box.createRigidArea(new Dimension(10, 40)));
+        drivesPanel.add(panel);
+
+        // Add new Drive panel
+
+        panel = new JPanel();
         panel.setLayout(new BoxLayout(panel ,BoxLayout.LINE_AXIS));
         panel.add(Box.createRigidArea(new Dimension(5, 40)));
         JLabel iconLabel = new JLabel();
         iconLabel.setIcon(iconAdd);
         panel.add(iconLabel);
-        JLabel label = new JLabel("Add new Drive for more space");
+        label = new JLabel("Add new Drive for more space");
         label.setHorizontalTextPosition(SwingConstants.LEADING);
         panel.add(label);
         panel.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
@@ -91,6 +123,8 @@ public class MainWindow extends JFrame {
             }
         });
         drivesPanel.add(panel);
+
+        // List of registered drive
 
         int color = 0;
         for(AppDrive drive : model.getMyDrives()) {
@@ -107,10 +141,13 @@ public class MainWindow extends JFrame {
             panel.add(label);
             panel.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
             panel.setAlignmentX(LEFT_ALIGNMENT);
+            panel.add(Box.createHorizontalGlue());
+            label = new JLabel(drive.getAccountInfo().getName());
+            panel.add(label);
+            panel.add(Box.createRigidArea(new Dimension(20, 40)));
             drivesPanel.add(panel);
         }
         drivesPanel.add(Box.createVerticalGlue());
-
 
         JScrollPane scrollPane = new JScrollPane(drivesPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setMinimumSize(new Dimension(200, 400));

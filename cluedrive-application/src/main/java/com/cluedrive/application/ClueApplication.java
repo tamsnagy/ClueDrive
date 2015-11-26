@@ -77,6 +77,16 @@ public class ClueApplication implements Serializable {
                 application.initialize();
                 // Create previously registered drives;
                 application.myDrives.forEach(appDrive -> appDrive.getDrive().initialize());
+                application.myDrives.parallelStream().forEach(appDrive -> {
+                    try {
+                        appDrive.setAccountInfo(appDrive.getDrive().getAccountInfo());
+                    } catch (ClueException e) {
+                        JOptionPane.showMessageDialog(mainWindow,
+                                "Your accessToken for " + appDrive.getDrive().getProvider() + " timed out. Delete that drive and authenticate again.",
+                                "Expired accessToken",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                });
                 createAndShowGUI(application);
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
@@ -136,12 +146,14 @@ public class ClueApplication implements Serializable {
             tmpDrive.finishAuth(accessToken);
             CFolder folder = tmpDrive.createFolder(tmpDrive.getRootFolder(), basePath.getLeaf());
             AppDrive appDrive = new AppDrive(tmpDrive, folder);
+            appDrive.setAccountInfo(tmpDrive.getAccountInfo());
             myDrives.add(appDrive);
         } catch (ClueException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(mainWindow,
+                    "Token is not valid, please try again.",
+                    "Unsuccessful authorization",
+                    JOptionPane.ERROR_MESSAGE);
         }
-
-        //TODO: check if token is real
         mainWindow.refreshDrivePane();
         mainWindow.refreshResourcePane();
 

@@ -1,9 +1,8 @@
 package com.cluedrive.application;
 
+import com.cluedrive.commons.CAccountInfo;
 import com.cluedrive.commons.CFolder;
-import com.cluedrive.commons.CPath;
 import com.cluedrive.commons.ClueDrive;
-import com.cluedrive.exception.ClueException;
 
 import java.io.Serializable;
 
@@ -13,6 +12,7 @@ import java.io.Serializable;
 public class AppDrive implements Serializable{
     private ClueDrive drive;
     private CFolder rootFolder;
+    private transient CAccountInfo accountInfo;
 
     public AppDrive() {
     }
@@ -36,5 +36,13 @@ public class AppDrive implements Serializable{
 
     public void setRootFolder(CFolder rootFolder) {
         this.rootFolder = rootFolder;
+    }
+
+    public CAccountInfo getAccountInfo() {
+        return accountInfo;
+    }
+
+    public void setAccountInfo(CAccountInfo accountInfo) {
+        this.accountInfo = accountInfo;
     }
 }
