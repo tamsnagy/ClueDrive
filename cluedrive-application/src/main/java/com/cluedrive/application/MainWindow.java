@@ -48,6 +48,13 @@ public class MainWindow extends JFrame {
         iconNewFolder = new ImageIcon("cluedrive-application/build/resources/main/images/new_folder.png");
         ImageIcon iconTick = new ImageIcon("cluedrive-application/build/resources/main/images/tick.png");
         iconRemoveSelection = new ImageIcon("cluedrive-application/build/resources/main/images/remove_selection.png");
+        ImageIcon iconDrive = new ImageIcon("cluedrive-application/build/resources/main/images/drive48.png");
+        ImageIcon iconDropbox = new ImageIcon("cluedrive-application/build/resources/main/images/dropbox48.png");
+        ImageIcon iconOnedrive = new ImageIcon("cluedrive-application/build/resources/main/images/onedrive48.png");
+
+        DriveChooserFrame.iconDrive = iconDrive;
+        DriveChooserFrame.iconDropbox = iconDropbox;
+        DriveChooserFrame.iconOneDrive = iconOnedrive;
 
         CResourceUI.iconFile = iconFile;
         CResourceUI.iconFolder = iconFolder;

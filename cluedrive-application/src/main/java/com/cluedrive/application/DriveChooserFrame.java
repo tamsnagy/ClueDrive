@@ -22,13 +22,14 @@ public class DriveChooserFrame extends JDialog {
     private static final String LOAD_PANEL = "LaodPanel";
     private static final String DROPBOX_TOKEN_TEXT = "<html><center>Insert here the token you got<br/> from DropBox:</center></html>";
     private static final String ONEDRIVE_TOKEN_TEXT = "<html><center>Insert here the response url <br/> from your browsers addressBar:</center></html>";
+    public static ImageIcon iconDrive, iconDropbox, iconOneDrive;
 
     public DriveChooserFrame(MainWindow mainFrame, ImageIcon iconLoad) {
         super(mainFrame, true);
         this.mainFrame = mainFrame;
         this.iconLoad = iconLoad;
         setTitle("Add new Drive");
-        setSize(250,300);
+        setSize(350,300);
         setResizable(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -168,7 +169,7 @@ public class DriveChooserFrame extends JDialog {
 
         panel.add(Box.createHorizontalGlue());
 
-        JLabel label = new JLabel("Google");
+        JLabel label = new JLabel("Drive", iconDrive, SwingConstants.LEFT);
         label.setOpaque(true);
         label.addMouseListener(new MouseAdapter() {
             @Override
@@ -186,7 +187,7 @@ public class DriveChooserFrame extends JDialog {
 
         panel.add(Box.createHorizontalGlue());
 
-        label = new JLabel("OneDrive");
+        label = new JLabel("OneDrive", iconOneDrive, SwingConstants.LEFT);
         label.setOpaque(true);
         label.addMouseListener(new MouseAdapter() {
             @Override
@@ -204,7 +205,7 @@ public class DriveChooserFrame extends JDialog {
 
         panel.add(Box.createHorizontalGlue());
 
-        label = new JLabel("DropBox");
+        label = new JLabel("DropBox", iconDropbox, SwingConstants.LEFT);
         label.setOpaque(true);
         label.addMouseListener(new MouseAdapter() {
             @Override
