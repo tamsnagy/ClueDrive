@@ -16,16 +16,40 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Created by Tamas on 2015-11-19.
+ * Panel which represents a resource from cloud.
  */
 public class CResourceUI extends JPanel {
+    /**
+     * Icon representing a folder.
+     */
     public static ImageIcon iconFolder;
+    /**
+     * Icon representing a file.
+     */
     public static ImageIcon iconFile;
+    /**
+     * Icon representing if resource is selected.
+     */
     public static ImageIcon iconTick;
+    /**
+     * The model of the resource.
+     */
     private CResource resource;
+    /**
+     * The drive which contains the resource.
+     */
     private AppDrive holder;
+    /**
+     * Label which contains the tick icon.
+     */
     private JLabel tickLabel;
 
+
+    /**
+     * Initializes a ResourceUI.
+     * @param resource The model of the resource.
+     * @param holder The model of the drive which holds the resource.
+     */
     public CResourceUI(CResource resource, AppDrive holder) {
         this.holder = holder;
         this.resource = resource;
@@ -104,16 +128,46 @@ public class CResourceUI extends JPanel {
         });
     }
 
+    /**
+     * Returns the resource model of the resourceUI.
+     * @return resource model.
+     */
     public CResource getResource() {
         return resource;
     }
 
+    /**
+     * Returns the drive model of the resourceUI.
+     * @return drive model.
+     */
     public AppDrive getHolder() {
         return holder;
     }
 
+    /**
+     * Hides tick label.
+     */
     public void hideSelected() {
         tickLabel.setVisible(false);
         this.repaint();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CResourceUI that = (CResourceUI) o;
+
+        if (!resource.equals(that.resource)) return false;
+        return holder.equals(that.holder);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = resource.hashCode();
+        result = 31 * result + holder.hashCode();
+        return result;
     }
 }
