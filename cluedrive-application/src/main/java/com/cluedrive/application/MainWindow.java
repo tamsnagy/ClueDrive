@@ -167,8 +167,20 @@ public class MainWindow extends JFrame {
 
         mainPanel.add(addressPanel);
         mainPanel.add(scrollResourcePane);
+        if(model.getMyDrives().isEmpty()){
+            disableComponents(mainPanel);
+        }
 
         return mainPanel;
+    }
+
+    public void disableComponents(Container container) {
+        for(Component component: container.getComponents()) {
+            component.setEnabled(false);
+            if( component instanceof Container) {
+                disableComponents((Container)component);
+            }
+        }
     }
 
     /**
@@ -409,10 +421,6 @@ public class MainWindow extends JFrame {
         );
         fileMenu.add(menuItem);
 
-        menuItem = new JMenuItem("DriveSettings");
-        //TODO: Extend with registered menus
-        fileMenu.add(menuItem);
-
         menuItem = new JMenuItem("Set Local Directory");
         menuItem.addActionListener(actionEvent -> {
             JFileChooser fileChooser = new JFileChooser();
@@ -458,7 +466,16 @@ public class MainWindow extends JFrame {
         aboutMenu.add(menuItem);
 
         menuItem = new JMenuItem("Help");
-        //TODO: Open help window
+        menuItem.addActionListener(actionEvent -> {
+                    String help = PropertiesUtility.applicationProperty("help");
+                    try {
+                        java.awt.Desktop.getDesktop().browse(
+                                new URI(help));
+                    } catch (IOException | URISyntaxException e) {
+                        JOptionPane.showMessageDialog(instance, "<html><a href=\""+help+"\">"+help+"</a></html>");
+                    }
+                }
+        );
         aboutMenu.add(menuItem);
 
         menuBar.add(fileMenu);
