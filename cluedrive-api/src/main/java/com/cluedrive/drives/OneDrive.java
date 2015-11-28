@@ -151,6 +151,11 @@ public class OneDrive extends ClueDrive {
     @Override
     public CFolder createFolder(CFolder parentFolder, String folderName) throws ClueException {
         try {
+            for(CResource resource: list(parentFolder.getRemotePath())) {
+                if(resource.isFolder() && folderName.equals(resource.getName())) {
+                    return  (CFolder) resource;
+                }
+            }
             HttpEntity<byte[]> entity = new HttpEntity<>(MAPPER.writeValueAsBytes(new CreateFolderRequest(folderName)), jsonHeaders);
             ResponseEntity<CreateFolderResponse> response = restTemplate.exchange(
                     url.base().segment(parentFolder.getRemotePath(), folderName).query("nameConflict", "rename").toString(),

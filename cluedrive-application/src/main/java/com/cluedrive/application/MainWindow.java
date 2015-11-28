@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -158,6 +159,7 @@ public class MainWindow extends JFrame {
      * @param model The model of the MVC.
      */
     private MainWindow(ClueApplication model) {
+        List<Image> logos = new ArrayList<>();
         iconAdd = new ImageIcon(this.getClass().getResource("/images/add.png"));
         iconRemove = new ImageIcon(this.getClass().getResource("/images/remove.png"));
         ImageIcon iconFolder = new ImageIcon(this.getClass().getResource("/images/folder.png"));
@@ -170,6 +172,13 @@ public class MainWindow extends JFrame {
         ImageIcon iconDrive = new ImageIcon(this.getClass().getResource("/images/drive48.png"));
         ImageIcon iconDropbox = new ImageIcon(this.getClass().getResource("/images/dropbox48.png"));
         ImageIcon iconOnedrive = new ImageIcon(this.getClass().getResource("/images/onedrive48.png"));
+        logos.add(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/images/logo16.png")));
+        logos.add(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/images/logo24.png")));
+        logos.add(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/images/logo32.png")));
+        logos.add(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/images/logo48.png")));
+        logos.add(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/images/logo64.png")));
+        logos.add(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/images/logo128.png")));
+        logos.add(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/images/logo256.png")));
 
         DriveChooserFrame.iconDrive = iconDrive;
         DriveChooserFrame.iconDropbox = iconDropbox;
@@ -185,6 +194,7 @@ public class MainWindow extends JFrame {
         setSize(1100, 650);
         setMinimumSize(new Dimension(700, 400));
         setLocationRelativeTo(null);
+        setIconImages(logos);
 
         setJMenuBar(initializedMenuBar());
 
