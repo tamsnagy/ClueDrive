@@ -1,7 +1,7 @@
 package com.cluedrive.exception;
 
 /**
- * Created by Tamas on 2015-09-30.
+ * this exception is thrown when CPath is not valid.
  */
 public class IllegalPathException extends ClueException {
     public IllegalPathException(String e) {

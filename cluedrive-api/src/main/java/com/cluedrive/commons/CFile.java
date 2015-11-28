@@ -3,18 +3,37 @@ package com.cluedrive.commons;
 import java.util.Date;
 
 /**
- * Created by Tamas on 2015-09-30.
+ * Class representation of a file.
  */
 public class CFile extends CResource {
-    private long fileSize;  // bytes
+    /**
+     * Size of the file in bytes.
+     */
+    private long fileSize;
+    /**
+     * Date when file was last modified on cloud.
+     */
     private Date lastModified;
 
+    /**
+     * Creates a CFile with given remote path, fileSize and last modified date.
+     * @param remotePath remote path to set.
+     * @param fileSize file size to set in bytes.
+     * @param lastModified last modified date to set.
+     */
     public CFile(CPath remotePath, long fileSize, Date lastModified) {
         super(remotePath);
         this.fileSize = fileSize;
         this.lastModified = lastModified;
     }
 
+    /**
+     * Creates a CFile with given remote path, id, fileSize and last modified date.
+     * @param remotePath remote path to set.
+     * @param id id to set.
+     * @param fileSize file size to set in bytes.
+     * @param lastModified last modified date to set.
+     */
     public CFile(CPath remotePath, String id, long fileSize, Date lastModified) {
         super(remotePath, id);
         this.fileSize = fileSize;
@@ -38,6 +57,9 @@ public class CFile extends CResource {
                 ", lastModified=" + lastModified +
                 ", remotePath=" + super.toString() + "} ";
     }
+
+    ///////////////////////////////////////////////////////////////////
+    // getters and setters
 
     public long getFileSize() {
         return fileSize;

@@ -12,13 +12,16 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Created by Tamas on 2015-09-24.
+ * ClueDrive for accessing Dropbox's cloud storage.
  */
 public class DropBoxDrive extends ClueDrive {
     private transient DbxRequestConfig config;
     private transient DbxClient client;
     private transient DbxWebAuthNoRedirect webAuth;
 
+    /**
+     * Creates a drive which is able to start auth flow.
+     */
     public DropBoxDrive() {
         provider = ClueDriveProvider.DROPBOX;
         config = new DbxRequestConfig("Clue Drive/1.0", Locale.getDefault().toString());
@@ -26,6 +29,10 @@ public class DropBoxDrive extends ClueDrive {
         webAuth = new DbxWebAuthNoRedirect(config, appInfo);
     }
 
+    /**
+     * Use just for unit tests.
+     * @param test value is not used.
+     */
     public DropBoxDrive(boolean test) {
         provider = ClueDriveProvider.DROPBOX;
         config = new DbxRequestConfig("Clue Drive/1.0", Locale.getDefault().toString());

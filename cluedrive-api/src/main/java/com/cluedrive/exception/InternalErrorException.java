@@ -1,7 +1,7 @@
 package com.cluedrive.exception;
 
 /**
- * Created by Tamas on 2015-11-14.
+ * This exception is thrown only when something really bad happened at cloud provider.
  */
 public class InternalErrorException extends ClueException {
     public InternalErrorException(String s) {

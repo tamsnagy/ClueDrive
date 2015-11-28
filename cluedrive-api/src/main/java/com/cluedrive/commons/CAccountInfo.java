@@ -1,10 +1,16 @@
 package com.cluedrive.commons;
 
 /**
- * Created by Tamas on 2015-11-25.
+ * Class representation of account information
  */
 public class CAccountInfo {
+    /**
+     * The name under the account is registered.
+     */
     private String name;
+    /**
+     * Total available space on cloud in bytes.
+     */
     private long total;
 
     public CAccountInfo() {
@@ -14,6 +20,9 @@ public class CAccountInfo {
         this.name = name;
         this.total = total;
     }
+
+    ////////////////////////////////////////////////////////////////////
+    // getters and setters
 
     public String getName() {
         return name;

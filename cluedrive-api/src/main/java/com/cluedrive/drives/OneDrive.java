@@ -24,15 +24,36 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Created by Tamas on 2015-10-01.
+ * ClueDrive for accessing OneDrives's cloud storage.
  */
 public class OneDrive extends ClueDrive {
+    /**
+     * URI base of REST requests.
+     */
     public static final String URI_BASE = "https://api.onedrive.com/v1.0/drive/special/approot";
+    /**
+     * Filters used at listing resources properties.
+     */
     private static final String LIST_FILTERS = "name,size,createdDateTime,lastModifiedDateTime,folder,file";
+    /**
+     * Fields name which contains download url of a resource.
+     */
     private static final String DOWNLOAD_URL_FIELD = "@content.downloadUrl";
+    /**
+     * RestTemplate uri used to send REST request.
+     */
     private transient RestTemplate restTemplate;
+    /**
+     * URLUtility used to build uris easily and readable.
+     */
     private transient URLUtility url;
+    /**
+     * Http headers for sending json request bodies.
+     */
     private transient HttpHeaders jsonHeaders;
+    /**
+     * json mapper used to convert responses, in case response contained field names which confront with Java field naming rules.
+     */
     private transient ObjectMapper MAPPER;
 
     public OneDrive() {

@@ -31,24 +31,35 @@ import java.security.GeneralSecurityException;
 import java.util.*;
 
 /**
- * Created by Tamas on 2015-10-01.
+ * ClueDrive for accessing Google's cloud storage.
  */
 public class GoogleDrive extends ClueDrive {
     public static final String FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
     private String setupOrigin;
     private transient Drive client;
 
+    /**
+     * Creates a drive which is able to start auth flow.
+     */
     public GoogleDrive() {
         provider = ClueDriveProvider.GOOGLE;
         this.setupOrigin = new JFileChooser().getFileSystemView().getDefaultDirectory().getParentFile().getAbsolutePath() + java.io.File.separator + "ClueDrive" + java.io.File.separator + "credentials";
     }
 
+    /**
+     * Used for unit tests.
+     * @param client the client to be set.
+     */
     public GoogleDrive(Drive client) {
         provider = ClueDriveProvider.GOOGLE;
         this.client = client;
         this.setupOrigin = new JFileChooser().getFileSystemView().getDefaultDirectory().getParentFile().getAbsolutePath() + java.io.File.separator + "ClueDrive" + java.io.File.separator + "credentials";
     }
 
+    /**
+     * Creates a drive which is able to start auth flow.
+     * @param setupPath path where credentials can be saved.
+     */
     public GoogleDrive(Path setupPath) {
         provider = ClueDriveProvider.GOOGLE;
         setupOrigin = setupPath.toString();
@@ -215,6 +226,19 @@ public class GoogleDrive extends ClueDrive {
         }
     }
 
+    public Drive getClient() {
+        return client;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+    // private methods.
+
+    /**
+     * Lists children for of a resource identified by it's id.
+     * @param id the id of the parent.
+     * @return Map of id-google's file key-value pairs.
+     * @throws ClueException Problem between client and provider.
+     */
     private Map<String, File> listChildren(String id) throws ClueException {
         Map<String, File> children = new HashMap<>();
         try {
@@ -228,6 +252,13 @@ public class GoogleDrive extends ClueDrive {
         }
     }
 
+    /**
+     * Helps googles file to transform to CFile
+     * @param googleFile google's file format
+     * @param remoteFolder parent folder on cloud.
+     * @param localPath local path on file system.
+     * @return CFile created from given parameters.
+     */
     private CFile createCFile(File googleFile, CPath remoteFolder, Path localPath) {
         Date date = (googleFile.getModifiedDate() == null) ? null : new Date(googleFile.getModifiedDate().getValue());
         long size = 0;
@@ -237,9 +268,5 @@ public class GoogleDrive extends ClueDrive {
         CFile cFile = new CFile(CPath.create(remoteFolder, googleFile.getTitle()), googleFile.getId(), size, date);
         cFile.setLocalPath(localPath);
         return cFile;
-    }
-
-    public Drive getClient() {
-        return client;
     }
 }

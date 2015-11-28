@@ -1,7 +1,7 @@
 package com.cluedrive.exception;
 
 /**
- * Created by Tamas on 2015-11-25.
+ * This exception is thrown when authorization to provider expired.
  */
 public class UnAuthorizedException extends ClueException {
     public UnAuthorizedException(String e) {

@@ -1,7 +1,7 @@
 package com.cluedrive.exception;
 
 /**
- * Created by Tamas on 2015-09-24.
+ * Base of all exceptions that can be thrown by API.
  */
 public class ClueException extends Exception {
     public ClueException(Exception e) {

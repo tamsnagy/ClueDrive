@@ -3,7 +3,7 @@ package com.cluedrive.exception;
 import com.cluedrive.commons.CPath;
 
 /**
- * Created by Tamas on 2015-09-30.
+ * This exception is thrown when asked path does not exist on cloud provider.
  */
 public class NotExistingPathException extends ClueException {
     public NotExistingPathException(CPath path) {

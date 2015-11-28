@@ -171,7 +171,7 @@ public class ClueApplication implements Serializable {
 
     /**
      * Adds resourceUI to selectedResources list.
-     * @param resource
+     * @param resource The resource to add to selected list.
      */
     public static void addSelected(CResourceUI resource) {
         if (selected.isEmpty()) {
@@ -316,7 +316,10 @@ public class ClueApplication implements Serializable {
         } catch (ClueException e) {
             e.printStackTrace();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(mainWindow,
+                    "Selected file not found, please try again.",
+                    "File not found",
+                    JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -367,7 +370,7 @@ public class ClueApplication implements Serializable {
 
     /**
      * Creates the View to the model. shows the main window.
-     * @param application
+     * @param application The Model for the application.
      */
     private static void createAndShowGUI(ClueApplication application) {
         try {

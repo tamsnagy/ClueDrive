@@ -1,8 +1,11 @@
 package com.cluedrive.commons;
 
 /**
- * Created by Tamas on 2015-11-17.
+ * Identifier for different Cloud providers.
+ * If API is extended with new provider, than new entry needs to be added here.
  */
 public enum ClueDriveProvider {
-    GOOGLE, ONEDRIVE, DROPBOX
+    DROPBOX,
+    GOOGLE,
+    ONEDRIVE
 }
