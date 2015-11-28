@@ -5,3 +5,12 @@ mainClassName = "com.cluedrive.application.ClueApplication"
 dependencies {
     compile project(':cluedrive-api')
 }
+
+// Creates executable jar file.
+jar {
+    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    manifest {
+        attributes 'Main-Class': mainClassName,
+                'Class-Path': configurations.compile.files.collect {"$it.name"}.join(' ')
+    }
+}
