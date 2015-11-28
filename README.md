@@ -16,4 +16,4 @@ Check the Readme file of the API [here](/cluedrive-api/README.md)
 
 ### Sample Application a.k.a ClueDrive Application.
 If you are interested in applications Readme file read [this](cluedrive-application/README.md)
-You can find the applications help by clicking [here](http://users.hszk.bme.hu/~nt1204/help/index.html)
+You can find the applications help by clicking [here](http://tamsnagy.github.io/ClueDrive/help.html)
