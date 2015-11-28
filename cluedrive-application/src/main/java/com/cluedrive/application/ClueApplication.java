@@ -10,6 +10,7 @@ import com.cluedrive.drives.OneDrive;
 import com.cluedrive.exception.ClueException;
 import com.cluedrive.exception.IllegalPathException;
 import com.cluedrive.exception.UnAuthorizedException;
+import com.google.api.services.drive.model.App;
 
 import javax.swing.*;
 import java.awt.*;
@@ -118,10 +119,7 @@ public class ClueApplication implements Serializable {
                     try {
                         appDrive.setAccountInfo(appDrive.getDrive().getAccountInfo());
                     } catch (ClueException e) {
-                        JOptionPane.showMessageDialog(mainWindow,
-                                "Your accessToken for " + appDrive.getDrive().getProvider() + " timed out. Delete that drive and authenticate again.",
-                                "Expired accessToken",
-                                JOptionPane.ERROR_MESSAGE);
+                        removeDrive(appDrive);
                     }
                 });
                 createAndShowGUI(application);
@@ -132,6 +130,15 @@ public class ClueApplication implements Serializable {
                         JOptionPane.ERROR_MESSAGE);
             }
         });
+    }
+
+    /**
+     * Removes drive from registered list.
+     * @param drive the drive to remove.
+     */
+    public static void removeDrive(AppDrive drive) {
+        mainWindow.getModel().myDrives.remove(drive);
+        mainWindow.getModel().persist();
     }
 
     /**
