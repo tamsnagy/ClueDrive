@@ -93,9 +93,9 @@ public class URLUtility {
      * Attaches query with parameter and value.
      * @param parameter parameter to set
      * @param value value to set.
-     * @return uri result = uri(?/&)parameter=value
-     * ? is added when no queries were added before.
-     * & is added when queries were added previously.
+     * @return uri result = uri('?'/and)parameter=value
+     * '?' is added when no queries were added before.
+     * and is added when queries were added previously.
      */
     public URLUtility query(String parameter, String value) {
         if (optionAdded) {
@@ -111,9 +111,9 @@ public class URLUtility {
     /**
      * Attaches filter with given value.
      * @param filters value of the filter.
-     * @return uri result = uri(?/&)select=filters
-     * ? is added when no queries were added before.
-     * & is added when queries were added previously.
+     * @return uri result = uri('?'/ and )select=filters
+     * '?' is added when no queries were added before.
+     * and is added when queries were added previously.
      */
     public URLUtility filter(String filters) {
         if (optionAdded) {

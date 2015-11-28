@@ -1,9 +1,7 @@
 package com.cluedrive.commons;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.util.Properties;
 
 public class PropertiesUtility {
@@ -14,8 +12,7 @@ public class PropertiesUtility {
      */
     public static String applicationProperty(String key) {
         Properties properties = new Properties();
-        try (InputStream inputStream = new FileInputStream(
-                Paths.get("cluedrive-application/build/resources/main/config.properties").toAbsolutePath().toFile())) {
+        try (InputStream inputStream = PropertiesUtility.class.getResourceAsStream("/config.properties")) {
             properties.load(inputStream);
         } catch (IOException e) {
             System.err.println("Application properties file missing, or just property " + key + " is missing");
@@ -30,8 +27,7 @@ public class PropertiesUtility {
      */
     public static String apiProperty(String key) {
         Properties properties = new Properties();
-        try (InputStream inputStream = new FileInputStream(
-                Paths.get("cluedrive-api/build/resources/main/config.properties").toAbsolutePath().toFile())) {
+        try (InputStream inputStream = PropertiesUtility.class.getResourceAsStream("/apiconfig.properties")) {
             properties.load(inputStream);
         } catch (IOException e) {
             System.err.println("API properties file missing, or just property " + key + " is missing");

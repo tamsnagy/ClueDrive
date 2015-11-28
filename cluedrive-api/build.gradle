@@ -1,3 +1,4 @@
+
 dependencies {
     compile 'com.dropbox.core:dropbox-core-sdk:1.8.2'
     compile 'com.google.apis:google-api-services-drive:v2-rev186-1.20.0'
@@ -14,13 +15,13 @@ processTestResources.dependsOn("getAccessToken")
 task getAccessToken {
     def oneDriveTokenField = "microsoftOnedrive.accessToken"
     def properties = new Properties();
-    def propertiesRoute = "src/test/resources/config.properties"
+    def propertiesRoute = "src/test/resources/apiconfig.properties"
 
     file(propertiesRoute).withInputStream {
         properties.load(it)
     }
 
-    // In case old accessToken expired, simply delete it from config.properties, and you can get new one.
+    // In case old accessToken expired, simply delete it from apiconfig.properties, and you can get new one.
     if (properties.getProperty(oneDriveTokenField) == null) {
 
 

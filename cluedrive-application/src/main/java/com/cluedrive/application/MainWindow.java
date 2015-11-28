@@ -158,18 +158,18 @@ public class MainWindow extends JFrame {
      * @param model The model of the MVC.
      */
     private MainWindow(ClueApplication model) {
-        iconAdd = new ImageIcon("cluedrive-application/build/resources/main/images/add.png");
-        iconRemove = new ImageIcon("cluedrive-application/build/resources/main/images/remove.png");
-        ImageIcon iconFolder = new ImageIcon("cluedrive-application/build/resources/main/images/folder.png");
-        ImageIcon iconFile = new ImageIcon("cluedrive-application/build/resources/main/images/file.png");
-        iconLoad = new ImageIcon("cluedrive-application/build/resources/main/images/load.gif");
-        iconBack = new ImageIcon("cluedrive-application/build/resources/main/images/back.png");
-        iconNewFolder = new ImageIcon("cluedrive-application/build/resources/main/images/new_folder.png");
-        ImageIcon iconTick = new ImageIcon("cluedrive-application/build/resources/main/images/tick.png");
-        iconRemoveSelection = new ImageIcon("cluedrive-application/build/resources/main/images/remove_selection.png");
-        ImageIcon iconDrive = new ImageIcon("cluedrive-application/build/resources/main/images/drive48.png");
-        ImageIcon iconDropbox = new ImageIcon("cluedrive-application/build/resources/main/images/dropbox48.png");
-        ImageIcon iconOnedrive = new ImageIcon("cluedrive-application/build/resources/main/images/onedrive48.png");
+        iconAdd = new ImageIcon(this.getClass().getResource("/images/add.png"));
+        iconRemove = new ImageIcon(this.getClass().getResource("/images/remove.png"));
+        ImageIcon iconFolder = new ImageIcon(this.getClass().getResource("/images/folder.png"));
+        ImageIcon iconFile = new ImageIcon(this.getClass().getResource("/images/file.png"));
+        iconLoad = new ImageIcon(this.getClass().getResource("/images/load.gif"));
+        iconBack = new ImageIcon(this.getClass().getResource("/images/back.png"));
+        iconNewFolder = new ImageIcon(this.getClass().getResource("/images/new_folder.png"));
+        ImageIcon iconTick = new ImageIcon(this.getClass().getResource("/images/tick.png"));
+        iconRemoveSelection = new ImageIcon(this.getClass().getResource("/images/remove_selection.png"));
+        ImageIcon iconDrive = new ImageIcon(this.getClass().getResource("/images/drive48.png"));
+        ImageIcon iconDropbox = new ImageIcon(this.getClass().getResource("/images/dropbox48.png"));
+        ImageIcon iconOnedrive = new ImageIcon(this.getClass().getResource("/images/onedrive48.png"));
 
         DriveChooserFrame.iconDrive = iconDrive;
         DriveChooserFrame.iconDropbox = iconDropbox;

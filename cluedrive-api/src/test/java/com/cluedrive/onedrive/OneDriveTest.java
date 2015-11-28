@@ -94,7 +94,7 @@ public class OneDriveTest extends ClueDriveTest {
     @Override
     protected void driveSpecificSetup() throws IOException {
         Properties properties = new Properties();
-        try (InputStream config = new FileInputStream(Paths.get("build/resources/test/config.properties").toFile())) {
+        try (InputStream config = new FileInputStream(Paths.get("build/resources/test/apiconfig.properties").toFile())) {
             properties.load(config);
         }
 

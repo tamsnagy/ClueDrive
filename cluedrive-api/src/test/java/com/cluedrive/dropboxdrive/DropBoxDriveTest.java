@@ -30,7 +30,7 @@ public class DropBoxDriveTest extends ClueDriveTest {
 
     protected void driveSpecificSetup() throws IOException {
         Properties properties = new Properties();
-        InputStream config = getClass().getClassLoader().getResourceAsStream("config.properties");
+        InputStream config = getClass().getClassLoader().getResourceAsStream("apiconfig.properties");
         properties.load(config);
         String accessToken = properties.getProperty("dropBox.token");
         drive = new DropBoxDrive(true);
