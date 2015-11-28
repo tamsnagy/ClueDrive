@@ -2,6 +2,7 @@ package com.cluedrive.application;
 
 import com.cluedrive.commons.PropertiesUtility;
 import com.cluedrive.exception.ClueException;
+import com.cluedrive.exception.NotExistingPathException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -476,8 +477,16 @@ public class MainWindow extends JFrame {
                             publish(drive.getDrive().list(ClueApplication.currentPath).parallelStream().map(resource -> new CResourceUI(resource, drive))
                                             .toArray(CResourceUI[]::new)
                             );
+                        } catch (NotExistingPathException e) {
+                            JOptionPane.showMessageDialog(instance,
+                                    "<html>" + ClueApplication.currentPath.toString() + " was removed from " + drive.getDrive().getProvider() +".<br/>Please follow helps reset drives section.</html>",
+                                    "Cloud folder changed unexpectedly",
+                                    JOptionPane.ERROR_MESSAGE);
                         } catch (ClueException e) {
-                            e.printStackTrace();
+                            JOptionPane.showMessageDialog(instance,
+                                    "Something unexpected happened, plese check help",
+                                    "Internal error",
+                                    JOptionPane.ERROR_MESSAGE);
                         }
                     });
                 } else {

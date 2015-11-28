@@ -7,4 +7,8 @@ public class UnAuthorizedException extends ClueException {
     public UnAuthorizedException(String e) {
         super(e);
     }
+
+    public UnAuthorizedException(Exception e){
+        super(e);
+    }
 }

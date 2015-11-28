@@ -3,6 +3,7 @@ package com.cluedrive.drives;
 import com.cluedrive.commons.*;
 import com.cluedrive.exception.ClueException;
 import com.cluedrive.exception.NotExistingPathException;
+import com.cluedrive.exception.UnAuthorizedException;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -66,7 +67,7 @@ public class GoogleDrive extends ClueDrive {
     }
 
     @Override
-    public String startAuth() {
+    public String startAuth()  throws UnAuthorizedException{
         try {
             // Load client secrets.
             InputStream in = this.getClass().getResourceAsStream("/google_client_secret.json");
@@ -87,13 +88,13 @@ public class GoogleDrive extends ClueDrive {
                     .setApplicationName("ClueDrive")
                     .build();
         } catch (GeneralSecurityException | IOException e) {
-            e.printStackTrace();
+            throw new UnAuthorizedException(e);
         }
         return null;
     }
 
     @Override
-    public void initialize() {
+    public void initialize() throws UnAuthorizedException {
         startAuth();
     }
 

@@ -132,7 +132,7 @@ public class OneDriveTest extends ClueDriveTest {
                     entity3,
                     CreateFolderResponse.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new ClueException(e);
         }
 
     }

@@ -1,6 +1,7 @@
 package com.cluedrive.commons;
 
 import com.cluedrive.exception.ClueException;
+import com.cluedrive.exception.UnAuthorizedException;
 
 import java.io.FileNotFoundException;
 import java.io.Serializable;
@@ -25,8 +26,9 @@ public abstract class ClueDrive implements Serializable {
      * !!!! Needs to be called after access token is set up, in case Drive is deserialized.
      * Sets up anything specially required by the actual provider.
      * Put here every code which needs to run after calling a constructor.
+     * @throws UnAuthorizedException Exception is thrown when access token was not found.
      */
-    public abstract void initialize();
+    public abstract void initialize() throws UnAuthorizedException;
 
     /**
      * Return account information of the authorized account.
@@ -89,8 +91,9 @@ public abstract class ClueDrive implements Serializable {
      * Starts OAuth2 flow.
      *
      * @return Url, where access can be granted to application.
+     * @throws UnAuthorizedException when start of Authorization is not successful.
      */
-    public abstract String startAuth();
+    public abstract String startAuth() throws UnAuthorizedException;
 
     /**
      * Finishes the authorization process.

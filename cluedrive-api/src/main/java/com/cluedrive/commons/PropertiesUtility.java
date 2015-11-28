@@ -18,7 +18,7 @@ public class PropertiesUtility {
                 Paths.get("cluedrive-application/build/resources/main/config.properties").toAbsolutePath().toFile())) {
             properties.load(inputStream);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Application properties file missing, or just property " + key + " is missing");
         }
         return properties.getProperty(key);
     }
@@ -34,7 +34,7 @@ public class PropertiesUtility {
                 Paths.get("cluedrive-api/build/resources/main/config.properties").toAbsolutePath().toFile())) {
             properties.load(inputStream);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("API properties file missing, or just property " + key + " is missing");
         }
         return properties.getProperty(key);
     }

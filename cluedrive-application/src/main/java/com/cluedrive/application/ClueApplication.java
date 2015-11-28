@@ -9,6 +9,7 @@ import com.cluedrive.drives.GoogleDrive;
 import com.cluedrive.drives.OneDrive;
 import com.cluedrive.exception.ClueException;
 import com.cluedrive.exception.IllegalPathException;
+import com.cluedrive.exception.UnAuthorizedException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -103,7 +104,16 @@ public class ClueApplication implements Serializable {
                 }
                 application.initialize();
                 // Create previously registered drives;
-                application.myDrives.forEach(appDrive -> appDrive.getDrive().initialize());
+                application.myDrives.forEach(appDrive -> {
+                    try {
+                        appDrive.getDrive().initialize();
+                    } catch (UnAuthorizedException e) {
+                        JOptionPane.showMessageDialog(mainWindow,
+                                "Something unexpected happened, please check help",
+                                "Internal error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                });
                 application.myDrives.parallelStream().forEach(appDrive -> {
                     try {
                         appDrive.setAccountInfo(appDrive.getDrive().getAccountInfo());
@@ -116,7 +126,10 @@ public class ClueApplication implements Serializable {
                 });
                 createAndShowGUI(application);
             } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+                JOptionPane.showMessageDialog(mainWindow,
+                        "Something unexpected happened, plese check help",
+                        "Internal error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         });
     }
@@ -210,7 +223,10 @@ public class ClueApplication implements Serializable {
             try {
                 resourceUI.getHolder().getDrive().delete(resourceUI.getResource());
             } catch (ClueException e) {
-                e.printStackTrace();
+                JOptionPane.showMessageDialog(mainWindow,
+                        "Something unexpected happened, please check help",
+                        "Internal error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         });
         emptySelected();
@@ -238,13 +254,17 @@ public class ClueApplication implements Serializable {
                 tmpDrive = new DropBoxDrive();
                 break;
         }
-        String urlString = tmpDrive.startAuth();
-        if (urlString != null) {
-            try {
+        String urlString = null;
+        try {
+            urlString = tmpDrive.startAuth();
+            if (urlString != null) {
                 Desktop.getDesktop().browse(new URI(urlString));
-            } catch (IOException | URISyntaxException e) {
-                e.printStackTrace();
             }
+        }catch (UnAuthorizedException | URISyntaxException | IOException e) {
+            JOptionPane.showMessageDialog(mainWindow,
+                    "Something unexpected happened, please check help",
+                    "Internal error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -290,7 +310,10 @@ public class ClueApplication implements Serializable {
         try {
             selectedDrive.getDrive().createFolder(parentFolder, folderName);
         } catch (ClueException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(mainWindow,
+                    "Something unexpected happened, please check help",
+                    "Internal error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -314,7 +337,10 @@ public class ClueApplication implements Serializable {
         try {
             selectedDrive.getDrive().uploadFile(parentFolder, item);
         } catch (ClueException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(mainWindow,
+                    "Something unexpected happened, please check help",
+                    "Internal error",
+                    JOptionPane.ERROR_MESSAGE);
         } catch (FileNotFoundException e) {
             JOptionPane.showMessageDialog(mainWindow,
                     "Selected file not found, please try again.",
@@ -376,7 +402,10 @@ public class ClueApplication implements Serializable {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(mainWindow,
+                    "Something unexpected happened, please check help",
+                    "Internal error",
+                    JOptionPane.ERROR_MESSAGE);
         }
         mainWindow = MainWindow.getInstance(application);
         mainWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -394,7 +423,10 @@ public class ClueApplication implements Serializable {
             currentFolder = new ArrayDeque<>();
             selected = new ArrayList<>();
         } catch (IllegalPathException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(mainWindow,
+                    "Something unexpected happened, please check help",
+                    "Internal error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -406,7 +438,10 @@ public class ClueApplication implements Serializable {
             localRootPathAsString = localRootPath.toString();
             outputStream.writeObject(this);
         } catch (IOException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(mainWindow,
+                    "Something unexpected happened, plese check help",
+                    "Internal error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }

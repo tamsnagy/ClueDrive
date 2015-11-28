@@ -113,9 +113,7 @@ public class CResourceUI extends JPanel {
                                         Files.createDirectories(localPath.getParent());
                                         holder.getDrive().downloadFile((CFile) resource, localPath);
                                         Desktop.getDesktop().open(localPath.toFile());
-                                    } catch (ClueException e1) {
-                                        e1.printStackTrace();
-                                    } catch (IOException e1) {
+                                    } catch (ClueException | IOException e1) {
                                         e1.printStackTrace();
                                     }
                                     return null;
