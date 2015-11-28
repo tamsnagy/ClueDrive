@@ -11,4 +11,11 @@ If you would like to try out the application and don't want to bother with compi
 The application depends on [ClueDrive API](../cluedrive-api/README.md) To be able to compile and run successfully. Please follow the compile instructions there.
 
 When you are ready with the instructions from there, you can continue with these:
+ 1. Open a terminal
+ 2. Go to `ClueDrive\cluedrive-application` folder
+ You can use the following commands:
+ 
+ * `gradle run` Run application from gradle
+ * `gradle jar` Creates an executable jar to `build/libs`
+ * `gradle javadoc` Generates javadoc to folder `build/docs/javadoc`
     
