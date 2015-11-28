@@ -83,6 +83,8 @@ public class DriveChooserFrame extends JDialog {
         card.setLayout(new BorderLayout());
         JLabel label = new JLabel(iconLoad);
         card.add(label, BorderLayout.CENTER);
+        label = new JLabel("Please check your browser, and grant access right.");
+        card.add(label, BorderLayout.SOUTH);
         return card;
     }
 
@@ -186,17 +188,32 @@ public class DriveChooserFrame extends JDialog {
                 JOptionPane.showMessageDialog(this, "Please select a provider by clicking on their icon.",
                         "Select Cloud provider", JOptionPane.WARNING_MESSAGE);
             } else {
-                model.addDriveCandidate(selectedProvider);
                 switch (selectedProvider) {
                     case DROPBOX:
+                        model.addDriveCandidate(selectedProvider);
                         tokenLabel.setText(DROPBOX_TOKEN_TEXT);
                         break;
                     case ONEDRIVE:
+                        model.addDriveCandidate(selectedProvider);
                         tokenLabel.setText(ONEDRIVE_TOKEN_TEXT);
                         break;
                     case GOOGLE:
-                        model.addAccessTokenToTmpDrive(null);
-                        dispose();
+                        ((CardLayout) this.getContentPane().getLayout()).show(this.getContentPane(), LOAD_PANEL);
+                        new SwingWorker<Void, Integer>() {
+
+                            @Override
+                            protected Void doInBackground() throws Exception {
+                                model.addDriveCandidate(selectedProvider);
+                                model.addAccessTokenToTmpDrive(null);
+                                publish(0);
+                                return null;
+                            }
+
+                            @Override
+                            protected void process(java.util.List<Integer> chunks) {
+                                dispose();
+                            }
+                        }.execute();
                         return;
                 }
                 ((CardLayout) this.getContentPane().getLayout()).show(this.getContentPane(), TOKEN_PANEL);

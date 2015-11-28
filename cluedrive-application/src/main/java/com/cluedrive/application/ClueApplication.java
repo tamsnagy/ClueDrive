@@ -81,6 +81,12 @@ public class ClueApplication implements Serializable {
      * RoundRobin coefficient. Its value is from [0, myDrives.size).
      */
     private int roundRobinCoefficient;
+    /**
+     * Model instance
+     */
+    private static ClueApplication application;
+
+    private static boolean tokenExpired;
 
     /**
      * Main function of the clueDrive example application.
@@ -89,7 +95,7 @@ public class ClueApplication implements Serializable {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
-                ClueApplication application = null;
+                application = null;
                 if (Files.exists(setupOrigin)) {
                     try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(setupOrigin.toFile()))) {
                         application = (ClueApplication) inputStream.readObject();
@@ -103,6 +109,7 @@ public class ClueApplication implements Serializable {
                 if (!Files.exists(localRootPath)) {
                     Files.createDirectories(localRootPath);
                 }
+                application.tokenExpired = false;
                 application.initialize();
                 // Create previously registered drives;
                 application.myDrives.forEach(appDrive -> {
@@ -115,11 +122,12 @@ public class ClueApplication implements Serializable {
                                 JOptionPane.ERROR_MESSAGE);
                     }
                 });
-                application.myDrives.parallelStream().forEach(appDrive -> {
+                application.myDrives.stream().forEach(appDrive -> {
                     try {
                         appDrive.setAccountInfo(appDrive.getDrive().getAccountInfo());
                     } catch (ClueException e) {
                         removeDrive(appDrive);
+                        tokenExpired = true;
                     }
                 });
                 createAndShowGUI(application);
@@ -137,8 +145,8 @@ public class ClueApplication implements Serializable {
      * @param drive the drive to remove.
      */
     public static void removeDrive(AppDrive drive) {
-        mainWindow.getModel().myDrives.remove(drive);
-        mainWindow.getModel().persist();
+        application.myDrives.remove(drive);
+        application.persist();
     }
 
     /**
@@ -417,6 +425,12 @@ public class ClueApplication implements Serializable {
         mainWindow = MainWindow.getInstance(application);
         mainWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         mainWindow.setVisible(true);
+        if(tokenExpired) {
+            JOptionPane.showMessageDialog(mainWindow,
+                    "<html>Your Onedrive accessToken has expired, please authorize again,<br/> by adding again as new drive</html>",
+                    "Expired access token",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
     /**
