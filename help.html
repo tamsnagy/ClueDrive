@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-    <title>Cluedrive</title>
+    <title>ClueDrive</title>
 </head>
 
 <body>
@@ -19,7 +19,7 @@
         <a id="forkme_banner" href="https://github.com/tamsnagy/ClueDrive">View on GitHub</a>
 
         <h1 id="project_title">ClueDrive Application help</h1>
-        <h2 id="project_tagline">You got stuck with application, find solution on this page.</h2>
+        <h2 id="project_tagline">Are there problems with application? Find the solution on this page.</h2>
 
     </header>
 </div>
@@ -28,19 +28,89 @@
 <div id="main_content_wrap" class="outer">
     <section id="main_content" class="inner">
         <h2>How to start using application</h2>
-        <p>To use the application, you will need java 8 JRE, browser, and cloud storage accounts on Dropbox, Google Drive, or Microsoft Onedrive.</p>
+        <p>To use the application, you will need Java 8 JRE, browser, and cloud storage accounts on Dropbox, Google Drive, or Microsoft Onedrive.</p>
         <p>Once you have the application jar: cluedrive-application-1.0.jar Double click and wait a little to start.</p>
         
         <h2>Don't know what to do after application started</h2>
-        <p>Here is the "welcome" screen after first. Click on the marked spot. Add new drive, and you can enjoy using the application. Create folders, upload files. Dowlnoad them later on...</p>
+        <p>Here is the "welcome" screen after first. Click on the marked spot. Add new drive, and you can enjoy using the application. Create folders, upload files. Download them later on...</p>
         <img src="images/firstStart.png" align="middle"/>
 
         <h2>Adding new drives</h2>
         <p>You can add new drives by clicking the <i>Add new Drive for more space</i> or opening the <i>File -> Add new Drive</i> menu, on the menu bar.</p>
-        <p>Eigther way you choose, the next window will open, where you can chooose provider:</p>
-        <img src="images/chooser.png" align="middle"/>
+        <p>Either way you choose, the next window will open, where you can choose provider:</p>
+        <center><img src="images/chooser.png" align="middle"/></center>
+        <p>You can select a cloud storage provider by clicking on them. When you select a provider it's background will become light green. If you have decided which providers account you want to attach to this application, than click on Authorize</p>
+        <p>At this moment your default browser will open the authorization web page of the selected provider, and asks you to log in (if you were not logged in previously), and authorize ClueDrive to access your files on cloud.</p>
+        <p>Here the authorization flow is different for the different providers:</p>
+        <ul>
+            <li><h3>Dropbox:</h3>
+                <p>
+                    Copy the access token as the web page suggests, paste it to the text area in the application and click on Finish
+                    <center><img src="images/dropbox.png"></center>
+                </p>
+            </li>
+            <li><h3>Google Drive:</h3>
+                <p>After you finish with authorization, you can close the web page. That's all. You will see the new drive on list.</p>
+            </li>
+            <li><h3>OneDrive:</h3>
+                <p>
+                    When authorization finishes, you will see an empty web page. Copy the long text from your browser address bar, paste it to the text area in the application and click on Finish
+                    <center><img src="images/onedrive.png"></center>
+                </p>
+            </li>
+        </ul>
+        <p>When authorization is finished, you can close your browser, it is not needed anymore.</p>
 
+        <h2>I registered drives, but I don't know what to do</h2>
+        <p>If you managed to authorize ClueDrive to access your files on at least one cloud storage than you should see something similar in the application:</p>
+        <center><img src="images/registered.png"></center>
+        <p>What you see on the picture above, is normal. It says, that you don't have anything in the folder named <i>Cloud</i> on your registered storages.</p>
+        <p>It's time to add something to your cloud. Don't you know ho to do it? Check out the next help point.</p>
 
+        <h2>Explanation of the application surface</h2>
+        <p>This poin explains what the icons on the applications surface mean</p>
+        <center><img src="images/explain.png"></center>
+        <p>In addition, the Total size in the left top corner, means that on your clouds you can store maximum that size of files. When you store on your registered cloud other files than this application can see, your practical storage becomes less, since the other files take storage space too.</p>
+        <h3>The menu bar</h3>
+        <ul>
+            <li>
+                <h4>File</h4>
+                <ul>
+                    <li><h5>Add drive</h5>You can register new cloud storage provider from here too.</li>
+                    <li><h5>Set local directory</h5>You can change the local save directory. When you download files to open they will be always saved to that location.</li>
+                    <li><h5>Refresh</h5>You can refresh the current folder manually.</li>
+                    <li><h5>Exit</h5>Shuts down the application</li>
+                </ul>
+            </li>
+            <li>
+                <h4>About</h4>
+                <ul>
+                    <li><h5>GitHUB</h5>Opens the GitHUB repository of the project</li>
+                    <li><h5>Help</h5>Opens this documentation</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2>What are the icons on the surface</h2>
+        <center><img src="images/files.png"></center>
+        <p>The first object, which is mainly blue, is a file. You can download it by double clicking on it, it will be saved according to your local storage path + cloud path. The file will be opened by the default application attached to that extension.</p>
+        <p>The rest of the objects are folders, you can open them by double clicking on them.</p>
+        <p>When you click only once. A little tick will open between the file, or folder icon and its name. If you click again on a selected item, the tick disappears. When at least one item is selected in the top right corner you will see an icon which says Erase selection. Clicking on it will de-select all selected items. If items are selected you can delete them.</p>
+
+        <h2>Strange Internal Error pop-up</h2>
+        <p>When this happens something really bad happened. In this case you need to shut down the application and do the following:</p>
+        <ol>
+            <li>Delete the <b>ClueDrive</b> folder from your home Documents folder.
+                <p>On Windows: C:\Users\{your user name}\Documents\ClueDrive,</p>
+                <p>On Linux: /home/{your user name}/Documents/ClueDrive.</p>
+                <p>Try to run the application again. You will need to register to the cloud storages again.</p>
+            </li>
+            <li>If first step did not succeeded. Than you must log in to your cloud provider in a browser, find the folder named Cloud, delete it, and start again with step 1.</li>
+        </ol>
+
+        <h2>OneDrive disappeared from drives list</h2>
+        <p>The access token is not alive too long, when it expires, the drive is removed from the list, but If you register again, you will see your files from there again.</p>
+        <p>Other cloud providers does not have this problem. They grant lifetime accessTokens.</p>
     </section>
 </div>
 
@@ -48,7 +118,7 @@
 <div id="footer_wrap" class="outer">
     <footer class="inner">
         <p>Visit the <a href="http://tamsnagy.github.io/ClueDrive/index.html">Main page</a> of the application too.</p>
-        <p class="copyright">Cluedrive maintained by <a href="https://github.com/tamsnagy">tamsnagy</a></p>
+        <p class="copyright">ClueDrive maintained by <a href="https://github.com/tamsnagy">tamsnagy</a></p>
         <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
     </footer>
 </div>
