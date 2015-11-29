@@ -32,19 +32,42 @@ public abstract class ClueDriveTest {
         }
     }
 
+    /**
+     * Checks if folder with name BASE_FOLDER_NAME exists at cloud root. If not creates one.
+     * If folder existed with that name, than deletes everything from that folder.
+     * @throws ClueException Problem between client and provider.
+     */
     protected abstract void format() throws ClueException;
 
+    /**
+     * Runs before format. Must Set up anything required specially by that provider, before executing format.
+     * @throws IOException
+     */
     protected abstract void driveSpecificSetup() throws IOException;
 
+    /**
+     * Must create two folder in the BASE_FOLDER_NAME folder.
+     * One of the two folder must be empty. The other one must contain an other folder.
+     * @throws ClueException Problem between client and provider.
+     */
     protected abstract void listSetup() throws ClueException;
 
 
+    /**
+     * Prepares cloud for testing.
+     * @throws IOException
+     * @throws ClueException Problem between client and provider.
+     */
     @Before
     public void setup() throws IOException, ClueException {
         driveSpecificSetup();
         format();
     }
 
+    /**
+     * Tries to access account info, from provider. Does not depend on other test.
+     * @throws ClueException Problem between client and provider.
+     */
     @Test
     public void testGetAccountInfo() throws ClueException {
         CAccountInfo accountInfo = drive.getAccountInfo();
@@ -53,6 +76,10 @@ public abstract class ClueDriveTest {
         assertNotEquals(0, accountInfo.getTotal());
     }
 
+    /**
+     * Checks for 2 folder in the BASE_FOLDER, one should contain an other folder too.
+     * @throws ClueException Problem between client and provider.
+     */
     @Test
     public void testList() throws ClueException {
         listSetup();
@@ -65,12 +92,21 @@ public abstract class ClueDriveTest {
                 (1 == subFolder1 && 0 == subFolder2));
     }
 
+    /**
+     * Tries to create a folder.
+     * @throws ClueException Problem between client and provider.
+     */
     @Test
     public void testCreateFolder() throws ClueException {
         CFolder folder = drive.createFolder(baseFolder, "banana");
         assertEquals("/" + BASE_FOLDER_NAME + "/banana", folder.getRemotePath().toString());
     }
 
+    /**
+     * Tries to delete a folder previously created.
+     * Depends on folder creation.
+     * @throws ClueException Problem between client and provider.
+     */
     @Test
     public void testDeleteFolder() throws ClueException {
         CFolder cFolder = drive.createFolder(baseFolder, "delete");
@@ -79,6 +115,12 @@ public abstract class ClueDriveTest {
         assertEquals(0, drive.list(baseFolder.getRemotePath()).size());
     }
 
+    /**
+     * Tries to delete a file.
+     * Depends on folder creation and file upload.
+     * @throws ClueException Problem between client and provider.
+     * @throws FileNotFoundException
+     */
     @Test
     public void testDeleteFile() throws ClueException, FileNotFoundException {
         CFolder cFolder = drive.createFolder(baseFolder, "upload");
@@ -90,6 +132,12 @@ public abstract class ClueDriveTest {
         assertEquals(0, drive.list(cFolder.getRemotePath()).size());
     }
 
+    /**
+     * Tries to upload a file.
+     * Depends on folder creation.
+     * @throws ClueException Problem between client and provider.
+     * @throws FileNotFoundException
+     */
     @Test
     public void testFileUpload() throws ClueException, FileNotFoundException {
         CFolder cFolder = drive.createFolder(baseFolder, "upload");
@@ -99,6 +147,12 @@ public abstract class ClueDriveTest {
         assertEquals("/" + BASE_FOLDER_NAME + "/upload/test.txt", cFile.getRemotePath().toString());
     }
 
+    /**
+     * Tries to download a file.
+     * Depends on folder creation, file upload.
+     * @throws ClueException Problem between client and provider.
+     * @throws FileNotFoundException
+     */
     @Test
     public void testFileDownload() throws ClueException, FileNotFoundException {
         CFolder cFolder = drive.createFolder(baseFolder, "download");
