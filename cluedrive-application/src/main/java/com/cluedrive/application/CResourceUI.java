@@ -84,7 +84,7 @@ public class CResourceUI extends JPanel {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 1) {
+                if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
                     if (tickLabel.isVisible()) {
                         tickLabel.setVisible(false);
                         ClueApplication.removeSelected((CResourceUI) e.getComponent());
@@ -93,7 +93,7 @@ public class CResourceUI extends JPanel {
                         ClueApplication.addSelected((CResourceUI) e.getComponent());
                     }
                 }
-                if (e.getClickCount() == 2) {
+                if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
                     if (resource.isFolder()) {
                         ClueApplication.emptySelected();
                         ClueApplication.currentDrive = holder;
